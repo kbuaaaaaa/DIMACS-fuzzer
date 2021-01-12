@@ -1,0 +1,9 @@
+# Solver build products
+*.o
+*.gcov
+*.gcda
+*.gcno
+sat
+
+# Fuzzer outputs
+fuzzed-tests/
