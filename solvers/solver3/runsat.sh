@@ -4,7 +4,7 @@ SCRIPT_PATH="$(realpath "${0}")"
 SCRIPT_DIR="$(dirname "${SCRIPT_PATH}")"
 
 export UBSAN_OPTIONS=halt_on_error=false
-export ASAN_OPTIONS=halt_on_error=false
+export ASAN_OPTIONS=halt_on_error=false:detect_leaks=0
 "${SCRIPT_DIR}/sat" "$1" &
 PID=$!
 
