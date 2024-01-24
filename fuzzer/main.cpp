@@ -32,10 +32,11 @@ void execute(subprocess::Popen &SUTProcess)
     }
     else if (SUTProcess.retcode() != 0)
     {
-        auto [output, error_output] = SUTProcess.communicate();
-        std::cout << output.buf.data();
-        save_to_file(error_output.buf.data(), 1);
-        std::cerr << "Error: " << error_output.buf.data();
+        auto output = SUTProcess.communicate();
+        std::cout << output.first.buf.data();
+        
+        save_to_file(output.second.buf.data(), 1);
+        std::cerr << "Error: " << output.second.buf.data();
     }
 }
 
