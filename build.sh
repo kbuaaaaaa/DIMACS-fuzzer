@@ -2,6 +2,14 @@
 set -x # Display every executed instruction
 set -e # Fail script as soon as instruction fails
 
+if [ -d ./fuzzed-tests ]; then
+    echo "Directory exists"
+    rm -rf fuzzed-tests
+fi
+
+mkdir fuzzed-tests
+
+g++ ./fuzzer/main.cpp -pthread -o fuzz-sat
 # Implement your build script here...
 # You can assume this runs on an environment similar to a lab-machine.
 #
