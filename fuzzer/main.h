@@ -14,6 +14,8 @@
 std::string NORM_HEADER = "p cnf 10 10\n";
 std::string OVERFLOW_HEADER = "p cnf " + std::to_string(LLONG_MAX + 1) + " " + std::to_string(LLONG_MAX + 1) + "\n";
 std::string RANDOM_HEADER = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~ \t\n\r\x0B\x0C";
+std::string VALID_PUNCTUATION = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~ ";
+
 std::vector<std::string> SPECIAL_INPUT = {
     "",
     "p cnf\n",
