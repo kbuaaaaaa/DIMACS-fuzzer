@@ -88,29 +88,34 @@ std::string generate_trash_cnf()
 {  
     std::string correct = generate_correct_cnf();
     int num_changes = rand() % correct.size();
-    int chosecase = rand() % 60;
+    int choose_case = rand() % 60;
 
-    if (chosecase < 20) { 
+    if (choose_case < 20) { 
         for (int i = 0; i < num_changes; i++) {
             int change = rand() % (correct.size()-7) + 7;
             correct.at(change) = 'z';
             }
-    } else if (chosecase < 40){ // add \n randombly 
+    } else if (choose_case < 40){ // add \n randombly 
         for (int i = 0; i < num_changes; i++) {
             int change = rand() % (correct.size()-7) + 7;
             correct.at(change) = '\n';
         }
-    } else if (chosecase < 60) { // add punctuation
+    } else if (choose_case < 60) { // add punctuation
         for (int i = 0; i < num_changes; i++) {
             int change = rand() % (correct.size()-7) + 7;
             correct.at(change) = ' ';
         }
-    } else if (chosecase < 80) { // injection of bytes 
+    } else if (choose_case < 80) { // add rand punctuation 
+        for (int i = 0; i < num_changes; i++) { 
+            int change = rand() % (correct.size()-7) + 7;
+            correct.at(change) = VALID_PUNCTUATION[rand() % VALID_PUNCTUATION.size()];
+        }
+    } else if (choose_case < 80) { // injection of bytes 
         for (int i = 0; i < num_changes; i++) { 
             int change = rand() % (correct.size()-7) + 7;
             /* code */
         }
-    } else if (chosecase < 100) { // overflow clause 
+    } else if (choose_case < 100) { // overflow clause 
         for (int i = 0; i < num_changes; i++) {
             int change = rand() % (correct.size()-7) + 7;
             /* code */
@@ -118,9 +123,9 @@ std::string generate_trash_cnf()
     }
 
     // add rand punctuation
-    // add rand special chars \0 \n \t \r \v \f
+    // add rand special chars \0 \t \r \v \f  // 
     // p cnf in random place
-    // boolean operators bit wise ||1
+    // boolean operators bit wise ||1 &&0 ^
     // overflow clause
     // byte injection
 
@@ -140,6 +145,11 @@ void save_to_file(const char *output, int i)
     //ASYNC WRITE HERE
     std::string name = "fuzzed-tests/test" + std::to_string(i) + ".txt";
     std::ofstream file(name);
+
+    if (output == NULL || output == ""){
+        
+    }
+        output = "NULL";
 
     file << output << "\n";
     file.close();
