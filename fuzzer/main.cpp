@@ -64,23 +64,30 @@ std::string generate_correct_cnf() {
 std::string generate_trash_cnf()
 {  
     std::string correct = generate_correct_cnf();
-
-    int chosecase = rand() % 100;
-    if (1) { //if (chosecase < 50) {
-
-        int num_changes = rand() % correct.size() - 10;
-        // minumum offset to make changes 11
-        for (int i = 0; i < num_changes; i++) {
-            int change = rand() % (correct.size()-10) + 11;
-            correct.at(change) = 'A';
+    int num_changes = rand() % correct.size() - 10;
+    for (int i = 0; i < num_changes; i++) {
+        int change = rand() % (correct.size()-10) + 11;
+        int chosecase = rand() % 100;
+        if (chosecase < 20) {
+            correct.at(change) = 'z';
         }
-        //} else {// add \n randombly
-            // add punctuation 
-            // injection of encoded \x00
-            // overflo header 
+        else if (chosecase < 40){
+            correct.at(change) = '\n';
+        }
+        else if (chosecase < 60)
+        {
+            correct.at(change) = ' ';
+        }
+        else if (chosecase < 80)
+        {
+            /* code */
+        }
+        else if (chosecase < 100)
+        {
+            /* code */
+        }
 
     }
-    
     std::cout << correct << std::endl;
     return correct;
 }
