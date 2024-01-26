@@ -111,7 +111,7 @@ std::string generate_trash_cnf()
             for (int i = 0; i < num_changes; i++)
             {
                 int change = rand() % (correct.size() - 10) + 10;
-                correct.at(change) = 'z';
+                correct.at(change) = ALPHANUMERIC[rand() % ALPHANUMERIC.size()];
             }
             break;
         }
