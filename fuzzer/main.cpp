@@ -103,68 +103,92 @@ std::string generate_trash_cnf()
 {
     std::string correct = generate_correct_cnf();
     int num_changes = rand() % correct.size();
-    int choose_case = rand() % 60;
-
-    if (choose_case < 20)
-    {
-        for (int i = 0; i < num_changes; i++)
+    int choose_case = rand() % 10;
+    switch (choose_case){
+        case 1:
         {
-            int change = rand() % (correct.size() - 7) + 7;
-            correct.at(change) = 'z';
+            //adding random char
+            for (int i = 0; i < num_changes; i++)
+            {
+                int change = rand() % (correct.size() - 10) + 10;
+                correct.at(change) = 'z';
+            }
+            break;
         }
-    }
-    else if (choose_case < 40)
-    { // add \n randombly
-        for (int i = 0; i < num_changes; i++)
+        case 2:
         {
-            int change = rand() % (correct.size() - 7) + 7;
-
-            correct.at(change) = '\n';
+            //adding random new line
+            for (int i = 0; i < num_changes; i++)
+            {
+                int change = rand() % (correct.size() - 10) + 10;
+                correct.at(change) = '\n';
+            }
+            break;
         }
-    }
-    else if (choose_case < 60)
-    { // add punctuation
-        for (int i = 0; i < num_changes; i++)
+        case 3:
         {
-            int change = rand() % (correct.size() - 7) + 7;
-            correct.at(change) = ' ';
+            //adding random space
+            for (int i = 0; i < num_changes; i++)
+            {
+                int change = rand() % (correct.size() - 10) + 10;
+                correct.at(change) = ' ';
+            }
+            break;
         }
-    }
-    else if (choose_case < 80)
-    { // add rand punctuation
-        for (int i = 0; i < num_changes; i++)
+        case 4:
         {
-            int change = rand() % (correct.size() - 7) + 7;
-            correct.at(change) = VALID_PUNCTUATION[rand() % VALID_PUNCTUATION.size()];
+            //adding random puntuation
+            for (int i = 0; i < num_changes; i++)
+            {
+                int change = rand() % (correct.size() - 10) + 10;
+                correct.at(change) = VALID_PUNCTUATION[rand() % VALID_PUNCTUATION.size()];
+            }
+            break;
         }
-    }
-    else if (choose_case < 80)
-    { // injection of bytes
-        for (int i = 0; i < num_changes; i++)
+        case 5:
         {
-            int change = rand() % (correct.size() - 7) + 7;
-            /* code */
+            //adding random special char
+            for (int i = 0; i < num_changes; i++)
+            {
+                int change = rand() % (correct.size() - 10) + 10;
+                correct.at(change) = ESCAPE_CHARS[rand() % ESCAPE_CHARS.size()];
+            }
+            break;
         }
-    }
-    else if (choose_case < 100)
-    { // overflow clause
-        for (int i = 0; i < num_changes; i++)
+        case 6:
         {
-            int change = rand() % (correct.size() - 7) + 7;
-            /* code */
+            //adding "p cnf" in random places
+            int change = rand() % (correct.size() - 10) + 10;
+            correct.insert(change, "p cnf ");
+            break;
         }
+        case 7:
+        {
+            //adding boolean operators bit wise ||1 &&0 ^
+            for (int i = 0; i < num_changes; i++)
+            {
+                int change = rand() % (correct.size() - 10) + 10;
+                correct.insert(change, BITWISE_OPERATOR[rand() % BITWISE_OPERATOR.size()]);
+            }
+            break;
+        }
+        case 8:
+        {
+            //adding long long max
+            for (int i = 0; i < num_changes; i++)
+            {
+                int change = rand() % (correct.size() - 10) + 10;
+                correct.insert(change, OVERFLOW_LITERAL);
+            }
+            break;
+        }
+        // case 9:
+            // adding random bytes
+        // case 10:
+        //     //adding multiple types of random
+        default:
+            break;
     }
-
-    // add rand punctuation
-    // add rand special chars \0 \t \r \v \f  //
-    // p cnf in random place
-    // boolean operators bit wise ||1 &&0 ^
-    // overflow clause
-    // byte injection
-
-    // rando all together between them
-
-    // std::cout << correct << std::endl;
     return correct;
 }
 
