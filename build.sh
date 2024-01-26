@@ -10,7 +10,7 @@ fi
 rm -rf inputs/AUTOGEN*
 mkdir fuzzed-tests
 
-g++ ./fuzzer/main.cpp -pthread -O3 -o fuzz-sat
+g++ ./fuzzer/main.cpp -std=c++17 -pthread -O3 -o fuzz-sat
 # Implement your build script here...
 # You can assume this runs on an environment similar to a lab-machine.
 #

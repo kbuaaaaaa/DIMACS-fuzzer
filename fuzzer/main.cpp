@@ -28,9 +28,9 @@ int main(int argc, char *argv[])
 
 void generate_cnf_files()
 {
-    if(rand() % 2 == 0 )    
-        generate_correct_cnf_files();
-    else
+    // if(rand() % 2 == 0 )    
+        // generate_correct_cnf_files();
+    // else
         generate_trash_cnf_files();
 }
 
@@ -110,6 +110,7 @@ std::string generate_trash_cnf()
     } else if (chosecase < 40){ // add \n randombly 
         for (int i = 0; i < num_changes; i++) {
             int change = rand() % (correct.size()-7) + 7;
+            
             correct.at(change) = '\n';
         }
     } else if (chosecase < 60) { // add punctuation
@@ -143,19 +144,50 @@ std::string generate_trash_cnf()
     
 
 
-    std::cout << correct << std::endl;
+    // std::cout << correct << std::endl;
     return correct;
 }
+
+
+std::string grep_output(const std::string& output, const std::string& pattern) {
+    std::string cmd = "echo \"" + output + "\" | grep -E \"" + pattern + "\"";
+    std::array<char, 128> buffer;
+    std::string result;
+    std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd.c_str(), "r"), pclose);
+    
+    if (!pipe) {
+        throw std::runtime_error("popen() failed!");
+    }
+
+    while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
+        result += buffer.data();
+    }
+
+    return result;
+}
+
 
 void save_to_file(const char *output, int i)
 {
     //ASYNC WRITE HERE
+    
+    
     std::string name = "fuzzed-tests/test" + std::to_string(i) + ".txt";
     std::ofstream file(name);
 
-    file << output << "\n";
+    //15 cases of sanitizers
+    for (size_t i = 0; i < 15; i++)
+    {
+        file << grep_output(output, REGEX[i]) << "\n";
+    }
+    file<<"\n-------ORIGINAL ERROR ----------\n"<< output;
+
+    // file << output << "\n";
     file.close();
 }
+
+
+
 
 void execute(subprocess::Popen &SUTProcess)
 {
@@ -176,6 +208,7 @@ void execute(subprocess::Popen &SUTProcess)
 
         save_to_file(output.second.buf.data(), COUNTER);
         COUNTER = COUNTER + 1;
+        
     }
 }
 
