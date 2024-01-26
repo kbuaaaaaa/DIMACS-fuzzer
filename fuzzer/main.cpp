@@ -1,14 +1,27 @@
 
 #include "main.h"
 
+
 int main(int argc, char *argv[])
 {
     std::string SATPath = argv[1];
-    std::string InputPath = argv[2];
+//  std::string InputPath = argv[2];
+
+///
+    int seed = atoi(argv[3]);
+    std::string random_input = random_gen_input(seed);
+///
+
+
+    std::string InputPath = "inputs/" + INPUT_COUTER.to_string() + ".txt"; 
 
     auto SUTProcess = subprocess::Popen({SATPath, InputPath}, subprocess::output(subprocess::PIPE), subprocess::error(subprocess::PIPE));
-
     execute(SUTProcess);
+}
+
+std::string random_gen_input(int seed) 
+{
+    return "";
 }
 
 void save_to_file(char *output, int i)
@@ -20,10 +33,10 @@ void save_to_file(char *output, int i)
     file.close();
 }
 
-void execute(subprocess::Popen &SUTProcess)
+void execute(subprocess::Popen &SUTProcess, std::string rand_input)
 {
     std::future<void> future = std::async(std::launch::async, [&]()
-                                          { SUTProcess.wait(); });
+                                          { SUTProcess.communicate(rand_input); });
 
     if (future.wait_for(std::chrono::seconds(5)) == std::future_status::timeout)
     {
