@@ -8,11 +8,8 @@ int CURRENT_COUNTER = 0;
 int main(int argc, char *argv[])
 {
     std::string SATPath = argv[1];
-//  std::string InputPath = argv[2];
-///
     int seed = atoi(argv[2]);   
     srand(seed);
-///
 
     while (true)
     {
@@ -44,14 +41,6 @@ void generate_cnf_files()
     }
 }
 
-// std::string random_gen_input() 
-// {
-//     std::string input = "p cnf ";
-
-//     return "";
-// }
-
-///
 std::string generate_correct_cnf() {
     int num_vars = rand() % 4000 + 1;
     int num_clauses = rand() % 4000 + 1;
@@ -71,7 +60,30 @@ std::string generate_correct_cnf() {
     }
     return ss_cnf.str();
 }
-/// 
+
+std::string generate_trash_cnf()
+{  
+    std::string correct = generate_correct_cnf();
+
+    int chosecase = rand() % 100;
+    if (1) { //if (chosecase < 50) {
+
+        int num_changes = rand() % correct.size() - 10;
+        // minumum offset to make changes 11
+        for (int i = 0; i < num_changes; i++) {
+            int change = rand() % (correct.size()-10) + 11;
+            correct.at(change) = 'A';
+        }
+        //} else {// add \n randombly
+            // add punctuation 
+            // injection of encoded \x00
+            // overflo header 
+
+    }
+    
+    std::cout << correct << std::endl;
+    return correct;
+}
 
 void save_to_file(const char *output, int i)
 {
