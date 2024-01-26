@@ -25,6 +25,8 @@ std::vector<std::string> SPECIAL_INPUT = {
 void execute(subprocess::Popen &SUTProcess);
 //std::string random_gen_input(int seed);
 void generate_cnf_files();
+void generate_correct_cnf_files();
+void generate_trash_cnf_files();
 std::string generate_correct_cnf();
 std::string generate_trash_cnf();
 
