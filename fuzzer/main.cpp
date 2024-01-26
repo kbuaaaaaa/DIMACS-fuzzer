@@ -3,6 +3,7 @@
 
 int COUNTER = 0;
 int INPUT_COUTER = 0;
+int CURRENT_COUNTER = 0;
 
 int main(int argc, char *argv[])
 {
@@ -13,19 +14,17 @@ int main(int argc, char *argv[])
     srand(seed);
 ///
 
-    generate_cnf_files();
-
-    // seed
     while (true)
     {
+        generate_cnf_files();
         // generate input
-        for(int i = 0; i < INPUT_COUTER; i++)
+        for(int i = CURRENT_COUNTER; i < INPUT_COUTER; i++)
         {
             std::string InputPath = "inputs/AUTOGEN_" + std::to_string(i) + ".cnf";
             auto SUTProcess = subprocess::Popen({SATPath, InputPath}, subprocess::output(subprocess::PIPE), subprocess::error(subprocess::PIPE));
             execute(SUTProcess);
         }
-        break;
+        CURRENT_COUNTER = INPUT_COUTER;
     }
     
 }
@@ -74,7 +73,7 @@ std::string generate_correct_cnf() {
 }
 /// 
 
-void save_to_file(char *output, int i)
+void save_to_file(const char *output, int i)
 {
     //ASYNC WRITE HERE
     std::string name = "fuzzed-tests/test" + std::to_string(i) + ".txt";

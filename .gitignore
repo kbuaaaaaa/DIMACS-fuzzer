@@ -7,3 +7,4 @@ sat
 
 # Fuzzer outputs
 fuzzed-tests/
+inputs/
