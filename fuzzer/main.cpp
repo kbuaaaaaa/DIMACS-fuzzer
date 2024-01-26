@@ -122,13 +122,21 @@ std::string generate_trash_cnf()
             int change = rand() % (correct.size()-7) + 7;
             /* code */
         }
-    } else if (chosecase < 100) { // overflow clause - // boolean operators bit wise ||1
+    } else if (chosecase < 100) { // overflow clause 
         for (int i = 0; i < num_changes; i++) {
             int change = rand() % (correct.size()-7) + 7;
             /* code */
         }
-
     }
+
+    // add rand punctuation
+    // add rand special chars \0 \n \t \r \v \f
+    // p cnf in random place
+    // boolean operators bit wise ||1
+    // overflow clause
+    // byte injection
+
+    //rando all together between them 
 
 
 
