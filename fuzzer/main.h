@@ -71,3 +71,17 @@ std::string REGEX[] = {
     "^==.*UndefinedBehaviorSanitizer"
 };
 
+
+struct Error
+{
+    int count;
+    std::string filename[20];
+};
+
+
+struct GrepReturn
+{
+    std::string result;
+    bool isEmpty;
+};
+
