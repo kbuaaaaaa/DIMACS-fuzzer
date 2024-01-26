@@ -1,8 +1,8 @@
 #include "main.h"
 
-int COUNTER = 0;
-int INPUT_COUTER = 0;
-int CURRENT_COUNTER = 0;
+long COUNTER = 0;
+long INPUT_COUTER = 0;
+long CURRENT_COUNTER = 0;
 Error Errors[15];
 
 int main(int argc, char *argv[])
@@ -158,8 +158,11 @@ std::string generate_trash_cnf()
         case 6:
         {
             //adding "p cnf" in random places
-            int change = rand() % (correct.size() - 10) + 10;
-            correct.insert(change, "p cnf ");
+            for (int i = 0; i < num_changes; i++)
+            {
+                int change = rand() % (correct.size() - 10) + 10;
+                correct.insert(change, "p cnf ");
+            }
             break;
         }
         case 7:
@@ -184,8 +187,14 @@ std::string generate_trash_cnf()
         }
         // case 9:
             // adding random bytes
-        // case 10:
-        //     //adding multiple types of random
+        case 10:
+            // adding many different random things
+            for (int i = 0; i < num_changes; i++)
+            {
+                int change = rand() % (correct.size() - 10) + 10;
+                correct.insert(change, RANDOM_ALL[rand() % BITWISE_OPERATOR.size()]);
+            }
+            break;
         default:
             break;
     }

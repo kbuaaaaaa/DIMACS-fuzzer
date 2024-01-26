@@ -16,6 +16,7 @@ std::string ALPHANUMERIC = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOP
 std::string VALID_PUNCTUATION = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~ ";
 std::vector ESCAPE_CHARS = {'\a', '\b', '\f', '\n', '\r', '\t', '\v', '\\', '\'', '\"', '\?', '\x0B','\x0C'};
 std::vector BITWISE_OPERATOR = {"&&", "||", "^", "<<", ">>", "-"};
+std::vector RANDOM_ALL = {"&&", "||", "^", "<<", ">>", "-", "\r", "\t", "\v", "\\", "\"", "\x0B", "#", "$", "%", "+", "-", "a", "b", "c", "d", "e", "f"};
 
 
 #pragma once
