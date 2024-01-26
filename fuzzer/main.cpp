@@ -103,7 +103,7 @@ std::string generate_trash_cnf()
 {
     std::string correct = generate_correct_cnf();
     int num_changes = rand() % correct.size();
-    int choose_case = rand() % 10;
+    int choose_case = rand() % 10 + 1;
     switch (choose_case){
         case 1:
         {
@@ -185,16 +185,26 @@ std::string generate_trash_cnf()
             }
             break;
         }
-        // case 9:
+        case 9:
+        {
             // adding random bytes
+            for (int i = 0; i < num_changes; i++)
+            {
+                int change = rand() % (correct.size() - 10) + 10;
+                correct.insert(change, RANDOM_BYTES[rand() % RANDOM_BYTES.size()]);
+            }
+            break;
+        }
         case 10:
+        {
             // adding many different random things
             for (int i = 0; i < num_changes; i++)
             {
                 int change = rand() % (correct.size() - 10) + 10;
-                correct.insert(change, RANDOM_ALL[rand() % BITWISE_OPERATOR.size()]);
+                correct.insert(change, RANDOM_ALL[rand() % RANDOM_ALL.size()]);
             }
             break;
+        }
         default:
             break;
     }

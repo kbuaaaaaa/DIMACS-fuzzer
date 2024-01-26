@@ -17,6 +17,7 @@ std::string VALID_PUNCTUATION = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~ ";
 std::vector ESCAPE_CHARS = {'\a', '\b', '\f', '\n', '\r', '\t', '\v', '\\', '\'', '\"', '\?', '\x0B','\x0C'};
 std::vector BITWISE_OPERATOR = {"&&", "||", "^", "<<", ">>", "-"};
 std::vector RANDOM_ALL = {"&&", "||", "^", "<<", ">>", "-", "\r", "\t", "\v", "\\", "\"", "\x0B", "#", "$", "%", "+", "-", "a", "b", "c", "d", "e", "f"};
+std::vector RANDOM_BYTES = {"\x7F\x45\x4C\x46", "\x89\x50\x4E\x47\x0D\x0A\x1A\x0A", "\xFF\xD8\xFF", "\x1F\x8B", "\x25\x50\x44\x46", "\x50\x4B\x03\x04"};
 
 
 #pragma once
