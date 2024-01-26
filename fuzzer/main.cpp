@@ -65,8 +65,20 @@ void generate_trash_cnf_files()
 }
 
 std::string generate_correct_cnf() {
-    int num_vars = rand() % 4000 + 1;
-    int num_clauses = rand() % 4000 + 1;
+    int num_vars = 0;
+    int num_clauses = 0;
+
+    if((rand() % (101) ) < 1)
+    {
+        num_vars = (rand() % (50000-35000)) + 35000;
+        num_clauses = (rand() % (5000-3500)) + 3500;
+    }
+    else
+    {
+        num_vars = rand() % 400 + 1;
+        num_clauses = rand() % 400 + 1;
+    }
+
     std::stringstream ss_cnf;
 
     ss_cnf << "p cnf " << num_vars << " " << num_clauses << "\n";
@@ -171,7 +183,6 @@ void execute(subprocess::Popen &SUTProcess)
     else if (SUTProcess.retcode() != 0)
     {
         auto output = SUTProcess.communicate();
-        std::cout << output.first.buf.data();
 
         save_to_file(output.second.buf.data(), COUNTER);
         COUNTER = COUNTER + 1;
