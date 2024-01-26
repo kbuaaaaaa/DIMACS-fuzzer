@@ -2,6 +2,7 @@
 
 
 int COUNTER = 0;
+int INPUT_COUTER = 0;
 
 int main(int argc, char *argv[])
 {
@@ -14,7 +15,7 @@ int main(int argc, char *argv[])
 ///
 
 
-    std::string InputPath = "inputs/" + INPUT_COUTER.to_string() + ".txt"; 
+    std::string InputPath = "inputs/" + std::to_string(INPUT_COUTER) + ".txt"; 
 
     // seed
     while (true)
@@ -44,10 +45,10 @@ void save_to_file(char *output, int i)
     file.close();
 }
 
-void execute(subprocess::Popen &SUTProcess, std::string rand_input)
+void execute(subprocess::Popen &SUTProcess)
 {
     std::future<void> future = std::async(std::launch::async, [&]()
-                                          { SUTProcess.communicate(rand_input); });
+                                          { SUTProcess.wait()); });
 
     if (future.wait_for(std::chrono::seconds(5)) == std::future_status::timeout)
     {
