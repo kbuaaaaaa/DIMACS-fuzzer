@@ -7,9 +7,10 @@ if [ -d ./fuzzed-tests ]; then
     rm -rf fuzzed-tests
 fi
 
+rm -rf inputs/AUTOGEN*
 mkdir fuzzed-tests
 
-g++ ./fuzzer/main.cpp -pthread -o fuzz-sat
+g++ ./fuzzer/main.cpp -pthread -O3 -o fuzz-sat
 # Implement your build script here...
 # You can assume this runs on an environment similar to a lab-machine.
 #
