@@ -28,13 +28,36 @@ int main(int argc, char *argv[])
 
 void generate_cnf_files()
 {
-    for (int i = 0; i < 10; i++)
+    if(rand() % 2 == 0 )    
+        generate_correct_cnf_files();
+    else
+        generate_trash_cnf_files();
+}
+
+void generate_correct_cnf_files()
+{
+    for (int i = 0; i < 5; i++)
     {
 
         std::string name = "inputs/AUTOGEN_" + std::to_string(INPUT_COUTER) + ".cnf";
         std::ofstream file(name);
 
         file << generate_correct_cnf() << "\n";
+        file.close();
+
+        INPUT_COUTER += 1;
+    }
+}
+
+void generate_trash_cnf_files()
+{
+    for (int i = 0; i < 5; i++)
+    {
+
+        std::string name = "inputs/AUTOGEN_" + std::to_string(INPUT_COUTER) + ".cnf";
+        std::ofstream file(name);
+
+        file << generate_trash_cnf() << "\n";
         file.close();
 
         INPUT_COUTER += 1;
@@ -76,26 +99,32 @@ std::string generate_correct_cnf() {
 std::string generate_trash_cnf()
 {  
     std::string correct = generate_correct_cnf();
-    int num_changes = rand() % correct.size() - 10;
-    for (int i = 0; i < num_changes; i++) {
-        int change = rand() % (correct.size()-10) + 11;
-        int chosecase = rand() % 100;
-        if (chosecase < 20) { 
+    int num_changes = rand() % correct.size();
+    int chosecase = rand() % 60;
+
+    if (chosecase < 20) { 
+        for (int i = 0; i < num_changes; i++) {
+            int change = rand() % (correct.size()-7) + 7;
             correct.at(change) = 'z';
-        }
-        else if (chosecase < 40){ // add \n randombly 
+            }
+    } else if (chosecase < 40){ // add \n randombly 
+        for (int i = 0; i < num_changes; i++) {
+            int change = rand() % (correct.size()-7) + 7;
             correct.at(change) = '\n';
         }
-        else if (chosecase < 60) // add punctuation
-        {
+    } else if (chosecase < 60) { // add punctuation
+        for (int i = 0; i < num_changes; i++) {
+            int change = rand() % (correct.size()-7) + 7;
             correct.at(change) = ' ';
         }
-        else if (chosecase < 80) // injection of bytes 
-        {
+    } else if (chosecase < 80) { // injection of bytes 
+        for (int i = 0; i < num_changes; i++) { 
+            int change = rand() % (correct.size()-7) + 7;
             /* code */
         }
-        else if (chosecase < 100) // overflow clause - // boolean operators bit wise ||1
-        {
+    } else if (chosecase < 100) { // overflow clause - // boolean operators bit wise ||1
+        for (int i = 0; i < num_changes; i++) {
+            int change = rand() % (correct.size()-7) + 7;
             /* code */
         }
 
