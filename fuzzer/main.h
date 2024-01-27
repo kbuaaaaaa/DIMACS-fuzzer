@@ -12,20 +12,14 @@
 #include "HTTPRequest.hpp"
 
 
-std::string NORM_HEADER = "p cnf 10 10\n";
-std::string OVERFLOW_HEADER = "p cnf " + std::to_string(LLONG_MAX + 1) + " " + std::to_string(LLONG_MAX + 1) + "\n";
-std::string RANDOM_HEADER = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~ \t\n\r\x0B\x0C";
+std::string OVERFLOW_LITERAL = std::to_string(LLONG_MAX + 1);
+std::string ALPHANUMERIC = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 std::string VALID_PUNCTUATION = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~ ";
+std::vector ESCAPE_CHARS = {'\a', '\b', '\f', '\n', '\r', '\t', '\v', '\\', '\'', '\"', '\?', '\x0B','\x0C'};
+std::vector BITWISE_OPERATOR = {"&&", "||", "^", "<<", ">>", "-"};
+std::vector RANDOM_ALL = {"&&", "||", "^", "<<", ">>", "-", "\r", "\t", "\v", "\\", "\"", "\x0B", "#", "$", "%", "+", "-", "a", "b", "c", "d", "e", "f"};
+std::vector RANDOM_BYTES = {"\x7F\x45\x4C\x46", "\x89\x50\x4E\x47\x0D\x0A\x1A\x0A", "\xFF\xD8\xFF", "\x1F\x8B", "\x25\x50\x44\x46", "\x50\x4B\x03\x04"};
 
-std::vector<std::string> SPECIAL_INPUT = {
-    "",
-    "p cnf\n",
-    OVERFLOW_HEADER,
-    RANDOM_HEADER,
-    NORM_HEADER,
-    NORM_HEADER + "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~" + "\n",
-    NORM_HEADER + RANDOM_HEADER + "\n"
-};
 
 #pragma once
 void execute(subprocess::Popen &SUTProcess);
