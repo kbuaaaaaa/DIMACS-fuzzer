@@ -1,7 +1,7 @@
 #include "main.h"
 
 long COUNTER = 0;
-long INPUT_COUTER = 0;
+long INPUT_COUNTER = 0;
 long CURRENT_COUNTER = 0;
 Error Errors[15];
 
@@ -11,17 +11,26 @@ int main(int argc, char *argv[])
     int seed = atoi(argv[2]);
     srand(seed);
 
-    while (true)
-    {
-        generate_cnf_files();
-        // generate input
-        for (int i = CURRENT_COUNTER; i < INPUT_COUTER; i++)
+    set_edge_cases();
+    for (int i = CURRENT_COUNTER; i < INPUT_COUNTER; i++)
         {
             std::string InputPath = "inputs/AUTOGEN_" + std::to_string(i) + ".cnf";
             auto SUTProcess = subprocess::Popen({SATPath, InputPath}, subprocess::output(subprocess::PIPE), subprocess::error(subprocess::PIPE));
             execute(SUTProcess);
         }
-        CURRENT_COUNTER = INPUT_COUTER;
+    CURRENT_COUNTER = INPUT_COUNTER;
+
+    while (true)
+    {
+        generate_cnf_files();
+        // generate input
+        for (int i = CURRENT_COUNTER; i < INPUT_COUNTER; i++)
+        {
+            std::string InputPath = "inputs/AUTOGEN_" + std::to_string(i) + ".cnf";
+            auto SUTProcess = subprocess::Popen({SATPath, InputPath}, subprocess::output(subprocess::PIPE), subprocess::error(subprocess::PIPE));
+            execute(SUTProcess);
+        }
+        CURRENT_COUNTER = INPUT_COUNTER;
     }
 }
 
@@ -38,13 +47,13 @@ void generate_correct_cnf_files()
     for (int i = 0; i < 5; i++)
     {
 
-        std::string name = "inputs/AUTOGEN_" + std::to_string(INPUT_COUTER) + ".cnf";
+        std::string name = "inputs/AUTOGEN_" + std::to_string(INPUT_COUNTER) + ".cnf";
         std::ofstream file(name);
 
         file << generate_correct_cnf() << "\n";
         file.close();
 
-        INPUT_COUTER += 1;
+        INPUT_COUNTER += 1;
     }
 }
 
@@ -53,13 +62,13 @@ void generate_trash_cnf_files()
     for (int i = 0; i < 5; i++)
     {
 
-        std::string name = "inputs/AUTOGEN_" + std::to_string(INPUT_COUTER) + ".cnf";
+        std::string name = "inputs/AUTOGEN_" + std::to_string(INPUT_COUNTER) + ".cnf";
         std::ofstream file(name);
 
         file << generate_trash_cnf() << "\n";
         file.close();
 
-        INPUT_COUTER += 1;
+        INPUT_COUNTER += 1;
     }
 }
 
@@ -209,6 +218,10 @@ std::string generate_trash_cnf()
             break;
     }
     return correct;
+
+    // wrong name of file -> error
+    // file too big -> error
+
 }
 
 GrepReturn grep_output(const std::string &output, const std::string &pattern)
@@ -294,4 +307,53 @@ void execute(subprocess::Popen &SUTProcess)
         save_to_file(output.second.buf.data(), COUNTER);
         COUNTER = COUNTER + 1;
     }
+}
+
+void set_edge_cases()
+{
+    std::string name = "inputs/AUTOGEN_" + std::to_string(INPUT_COUNTER) + ".cnf";
+    std::ofstream file(name);
+
+    file << "p cnf 1 1\n";
+    file << "1 0\n";
+    file.close();
+
+    INPUT_COUNTER += 1;
+
+    name = "inputs/AUTOGEN_" + std::to_string(INPUT_COUNTER) + ".cnf";
+    file.open(name);
+
+    file << "p cnf 1 1\n";
+    file << "-1 0\n";
+    file.close();
+
+    INPUT_COUNTER += 1;
+
+    name = "inputs/AUTOGEN_" + std::to_string(INPUT_COUNTER) + ".cnf";
+    file.open(name);
+
+    file << "";
+    file.close();
+
+    INPUT_COUNTER += 1;
+
+    name = "inputs/AUTOGEN_" + std::to_string(INPUT_COUNTER) + ".cnf";
+    file.open(name);
+
+    file << "p cnf 1 1\n";
+    file << "0 0\n";
+    file.close();
+
+    INPUT_COUNTER += 1;
+
+
+    name = "inputs/AUTOGEN_" + std::to_string(INPUT_COUNTER) + ".cnf";
+    file.open(name);
+
+    file << "p cnf 1 1\n";
+    file << "1 1 1 0\n";
+    file.close();
+
+    INPUT_COUNTER += 1;
+
 }
