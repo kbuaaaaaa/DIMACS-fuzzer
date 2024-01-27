@@ -63,6 +63,8 @@
         "mutex": "cpp",
         "numbers": "cpp",
         "semaphore": "cpp",
-        "stop_token": "cpp"
+        "stop_token": "cpp",
+        "bitset": "cpp",
+        "regex": "cpp"
     }
 }

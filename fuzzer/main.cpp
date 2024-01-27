@@ -26,14 +26,8 @@ int main(int argc, char *argv[])
     srand(seed);
 
     set_edge_cases();
-    for (int i = CURRENT_COUNTER; i < INPUT_COUNTER; i++)
-        {
-            std::string InputPath = "inputs/AUTOGEN_" + std::to_string(i) + ".cnf";
-            auto SUTProcess = subprocess::Popen({SATPath, InputPath}, subprocess::output(subprocess::PIPE), subprocess::error(subprocess::PIPE));
-            execute(SUTProcess);
-        }
-    CURRENT_COUNTER = INPUT_COUNTER;
-
+    run_one_time_edge_cases(SATPath);
+    
     while (true)
     {
         generate_cnf_files();
@@ -97,13 +91,6 @@ std::string generate_correct_cnf()
     {
         num_vars = (rand() % (5000 - 3500)) + 3500;
         num_clauses = (rand() % (5000 - 3500)) + 3500;
-    }
-    else if (randomChance < 30)
-    {
-        ss_cnf << "p cnf " << "1000000000000" << " " << "1000000000000" << "\n";
-        ss_cnf << "1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 0\n";
-        return ss_cnf.str();
-
     }
     else
     {
@@ -243,7 +230,6 @@ std::string generate_trash_cnf()
     return correct;
 
     // wrong name of file -> error
-    // file too big -> error
 
 }
 
@@ -334,8 +320,15 @@ void set_edge_cases()
     std::string name = "inputs/AUTOGEN_" + std::to_string(INPUT_COUNTER) + ".cnf";
     std::ofstream file(name);
 
-    file << "p cnf 1 1\n";
-    file << "1 0\n";
+    file << "";
+    file.close();
+    
+    INPUT_COUNTER += 1;
+
+    name = "inputs/AUTOGEN_" + std::to_string(INPUT_COUNTER) + ".cnf";
+    file.open(name);
+    file << "p cnf " << "1000000000000" << " " << "1000000000000" << "\n";
+    file << "1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 0\n";
     file.close();
 
     INPUT_COUNTER += 1;
@@ -352,7 +345,8 @@ void set_edge_cases()
     name = "inputs/AUTOGEN_" + std::to_string(INPUT_COUNTER) + ".cnf";
     file.open(name);
 
-    file << "";
+    file << "p cnf 1 1\n";
+    file << "1 0\n";
     file.close();
 
     INPUT_COUNTER += 1;
@@ -366,7 +360,6 @@ void set_edge_cases()
 
     INPUT_COUNTER += 1;
 
-
     name = "inputs/AUTOGEN_" + std::to_string(INPUT_COUNTER) + ".cnf";
     file.open(name);
 
@@ -375,5 +368,21 @@ void set_edge_cases()
     file.close();
 
     INPUT_COUNTER += 1;
+}
 
+void run_one_time_edge_cases(std::string SATPath)
+{
+    for (int i = CURRENT_COUNTER; i < INPUT_COUNTER; i++)
+    {
+            std::string InputPath = "inputs/AUTOGEN_" + std::to_string(i) + ".cnf";
+            auto SUTProcess = subprocess::Popen({SATPath, InputPath}, subprocess::output(subprocess::PIPE), subprocess::error(subprocess::PIPE));
+            execute(SUTProcess);
+    }
+    CURRENT_COUNTER = INPUT_COUNTER;
+
+    std::string InputPath = "inputs/WRONG_NAME.cnf";
+    auto SUTProcess = subprocess::Popen({SATPath, InputPath}, subprocess::output(subprocess::PIPE), subprocess::error(subprocess::PIPE));
+    execute(SUTProcess);
+    INPUT_COUNTER += 1;
+    CURRENT_COUNTER = INPUT_COUNTER;
 }
