@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
 
 void generate_cnf_files()
 {
-    if (rand() % 2 == 0)
+    if (rand() % 101 <10)
         generate_correct_cnf_files();
     else
         generate_trash_cnf_files();
@@ -228,9 +228,6 @@ std::string generate_trash_cnf()
         break;
     }
     return correct;
-
-    // wrong name of file -> error
-
 }
 
 GrepReturn grep_output(const std::string &output, const std::string &pattern)
