@@ -3,12 +3,13 @@
 #include <chrono>
 #include <thread>
 #include <future>
-#include "subprocess.hpp"
 #include <sstream>
 #include <climits>
 #include <vector>
 #include <regex>
 #include <map>
+#include "subprocess.hpp"
+#include "HTTPRequest.hpp"
 
 
 std::string NORM_HEADER = "p cnf 10 10\n";

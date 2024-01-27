@@ -7,6 +7,20 @@ Error Errors[15];
 
 int main(int argc, char *argv[])
 {
+    try
+    {
+        // you can pass http::InternetProtocol::V6 to Request to make an IPv6 request
+        http::Request request{"http://172.167.164.98/"};
+
+        // send a get request
+        const auto response = request.send("GET");
+        std::cout << std::string{response.body.begin(), response.body.end()} << '\n'; // print the result
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << "Request failed, error: " << e.what() << '\n';
+    }
+
     std::string SATPath = argv[1];
     int seed = atoi(argv[2]);
     srand(seed);
@@ -185,9 +199,7 @@ GrepReturn grep_output(const std::string &output, const std::string &pattern)
         result += buffer.data();
     }
 
-    
-
-    return GrepReturn{ result, result.empty()};
+    return GrepReturn{result, result.empty()};
 }
 
 void save_to_file(const char *output, int i)
@@ -202,14 +214,13 @@ void save_to_file(const char *output, int i)
 
         auto res = grep_output(output, REGEX[j]);
         grep_content += res.result + "\n";
-        
-        if(!res.isEmpty){
-            Errors[j].count ++;
-            Errors[j].filename->append("AUTOGEN_"+std::to_string(i)+".cnf");
-        }
 
+        if (!res.isEmpty)
+        {
+            Errors[j].count++;
+            Errors[j].filename->append("AUTOGEN_" + std::to_string(i) + ".cnf");
+        }
     }
-    
 
     if (grep_content != "")
     {
