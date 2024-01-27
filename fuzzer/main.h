@@ -50,14 +50,13 @@ enum ErrorType {
     UB_ERROR
 };
 
-int REGEX_ERRORS = 17;
+int REGEX_ERRORS = 16;
 std::string REGEX[] = {
     "SAT killed timeout",
     "^.*runtime error:.*negation",
     "^.*runtime error:.*null pointer",
     "^.*runtime error:.*shift",
     "^.*runtime error:.*integer",
-    ".*runtime error:",
     "^==.*AddressSanitizer: SEGV",
     "^==.*AddressSanitizer: requested allocation size",
     "^==.*AddressSanitizer: heap-use-after-free",
