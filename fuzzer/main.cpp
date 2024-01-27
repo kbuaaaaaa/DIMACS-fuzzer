@@ -4,8 +4,8 @@ long COUNTER = 0;
 long INPUT_COUNTER = 0;
 long CURRENT_COUNTER = 0;
 
-Error Errors[17];
-int ErrorOutputs = 0;
+Error Errors[16];
+int FilesCopied = 0;
 
 int main(int argc, char *argv[])
 {
@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
 
 void generate_cnf_files()
 {
-    if (rand() % 101 < 10)
+    if (rand() % 101 < 30)
         generate_correct_cnf_files();
     else
         generate_trash_cnf_files();
@@ -94,11 +94,17 @@ std::string generate_correct_cnf()
         num_vars = (rand() % (5000 - 3500)) + 3500;
         num_clauses = (rand() % (5000 - 3500)) + 3500;
     }
-    else
+    else if(randomChance<50)
     {
         num_vars = rand() % 400 + 1;
         num_clauses = rand() % 400 + 1;
     }
+    else
+    {
+        num_vars = rand() % 40 + 1;
+        num_clauses = rand() % 40 + 1;
+    }
+    
 
     ss_cnf << "p cnf " << num_vars << " " << num_clauses << "\n";
     for (int i = 0; i < num_clauses; ++i)
@@ -265,7 +271,7 @@ void save_to_file(const char *output, int i)
 
         if (!res.isEmpty)
         {
-            if (ErrorOutputs > 20)
+            if (FilesCopied >= 20)
             {
                 Error *maxError = &(Errors[0]);
                 for (int k = 1; k < REGEX_ERRORS; k++)
@@ -280,22 +286,20 @@ void save_to_file(const char *output, int i)
 
                 if (std::system(command.c_str()) == 0)
                 {
+                    maxError->filename[maxError->count - 1].clear();
+                    maxError->count--;
+                    FilesCopied--;
                     std::cout << "File removed successfully. " << command.c_str() << std::endl;
                 }
                 else
                 {
                     std::cerr << "File remove failed. " << command.c_str() << std::endl;
                 }
-
-                maxError->filename[maxError->count - 1].clear();
-                maxError->count--;
-                ErrorOutputs--;
             }
 
             grep_content += res.result + "\n";
             Errors[j].filename[Errors[j].count] = "AUTOGEN_" + std::to_string(i) + ".cnf";
             Errors[j].count++;
-            ErrorOutputs++;
         }
     }
 
@@ -308,6 +312,7 @@ void save_to_file(const char *output, int i)
 
         if (std::system(command.c_str()) == 0)
         {
+            FilesCopied++;
             std::cout << "File copied successfully. " << command.c_str() << std::endl;
         }
         else
@@ -315,6 +320,13 @@ void save_to_file(const char *output, int i)
             std::cerr << "File copy failed. " << command.c_str() << std::endl;
         }
     }
+
+    printf("----------------------------------------------------\n");
+
+    for(int llll = 0; llll< REGEX_ERRORS;llll++){
+        printf("Error: %d   Appeared: %d times\n",llll,Errors[llll].count);
+    }
+    printf("----------------------------------------------------\n");
 
     error_file.close();
 }
