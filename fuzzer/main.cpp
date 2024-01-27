@@ -268,7 +268,7 @@ void save_to_file(const char *output, int i)
             if (ErrorOutputs > 20)
             {
                 Error *maxError = &(Errors[0]);
-                for (int k = 1; k < 17; k++)
+                for (int k = 1; k < REGEX_ERRORS; k++)
                 {
                     if (Errors[k].count > maxError->count)
                     {
