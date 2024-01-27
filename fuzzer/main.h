@@ -50,6 +50,7 @@ enum ErrorType {
     UB_ERROR
 };
 
+int REGEX_ERRORS = 17;
 std::string REGEX[] = {
     "SAT killed timeout",
     "^.*runtime error:.*negation",

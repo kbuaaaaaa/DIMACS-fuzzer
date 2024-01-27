@@ -257,7 +257,7 @@ void save_to_file(const char *output, int i)
     std::string grep_content = "";
     std::ofstream error_file(name);
 
-    for (size_t j = 0; j < 17; j++)
+    for (size_t j = 0; j < REGEX_ERRORS; j++)
     {
 
         auto res = grep_output(output, REGEX[j]);
