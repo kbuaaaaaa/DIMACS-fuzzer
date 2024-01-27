@@ -3,23 +3,23 @@
 long COUNTER = 0;
 long INPUT_COUTER = 0;
 long CURRENT_COUNTER = 0;
-Error Errors[15];
+Error Errors[17];
 
 int main(int argc, char *argv[])
 {
-    try
-    {
-        // you can pass http::InternetProtocol::V6 to Request to make an IPv6 request
-        http::Request request{"http://172.167.164.98/"};
+    // try
+    // {
+    //     // you can pass http::InternetProtocol::V6 to Request to make an IPv6 request
+    //     http::Request request{"http://172.167.164.98/"};
 
-        // send a get request
-        const auto response = request.send("GET");
-        std::cout << std::string{response.body.begin(), response.body.end()} << '\n'; // print the result
-    }
-    catch (const std::exception &e)
-    {
-        std::cerr << "Request failed, error: " << e.what() << '\n';
-    }
+    //     // send a get request
+    //     const auto response = request.send("GET");
+    //     std::cout << std::string{response.body.begin(), response.body.end()} << '\n'; // print the result
+    // }
+    // catch (const std::exception &e)
+    // {
+    //     std::cerr << "Request failed, error: " << e.what() << '\n';
+    // }
 
     std::string SATPath = argv[1];
     int seed = atoi(argv[2]);
@@ -41,10 +41,10 @@ int main(int argc, char *argv[])
 
 void generate_cnf_files()
 {
-    // if(rand() % 2 == 0 )
-    // generate_correct_cnf_files();
-    // else
-    generate_trash_cnf_files();
+    if (rand() % 2 == 0)
+        generate_correct_cnf_files();
+    else
+        generate_trash_cnf_files();
 }
 
 void generate_correct_cnf_files()
@@ -81,11 +81,20 @@ std::string generate_correct_cnf()
 {
     int num_vars = 0;
     int num_clauses = 0;
+    int randomChance = (rand() % (101));
+    std::stringstream ss_cnf;
 
-    if ((rand() % (101)) < 1)
+    if (randomChance < 1)
     {
-        num_vars = (rand() % (50000 - 35000)) + 35000;
+        num_vars = (rand() % (5000 - 3500)) + 3500;
         num_clauses = (rand() % (5000 - 3500)) + 3500;
+    }
+    else if (randomChance < 30)
+    {
+        ss_cnf << "p cnf " << "1000000000000" << " " << "1000000000000" << "\n";
+        ss_cnf << "1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 0\n";
+        return ss_cnf.str();
+
     }
     else
     {
@@ -93,7 +102,6 @@ std::string generate_correct_cnf()
         num_clauses = rand() % 400 + 1;
     }
 
-    std::stringstream ss_cnf;
 
     ss_cnf << "p cnf " << num_vars << " " << num_clauses << "\n";
     for (int i = 0; i < num_clauses; ++i)
@@ -118,109 +126,110 @@ std::string generate_trash_cnf()
     std::string correct = generate_correct_cnf();
     int num_changes = rand() % correct.size();
     int choose_case = rand() % 10 + 1;
-    switch (choose_case){
-        case 1:
+    switch (choose_case)
+    {
+    case 1:
+    {
+        // adding random char
+        for (int i = 0; i < num_changes; i++)
         {
-            //adding random char
-            for (int i = 0; i < num_changes; i++)
-            {
-                int change = rand() % (correct.size() - 10) + 10;
-                correct.at(change) = ALPHANUMERIC[rand() % ALPHANUMERIC.size()];
-            }
-            break;
+            int change = rand() % (correct.size() - 10) + 10;
+            correct.at(change) = ALPHANUMERIC[rand() % ALPHANUMERIC.size()];
         }
-        case 2:
+        break;
+    }
+    case 2:
+    {
+        // adding random new line
+        for (int i = 0; i < num_changes; i++)
         {
-            //adding random new line
-            for (int i = 0; i < num_changes; i++)
-            {
-                int change = rand() % (correct.size() - 10) + 10;
-                correct.at(change) = '\n';
-            }
-            break;
+            int change = rand() % (correct.size() - 10) + 10;
+            correct.at(change) = '\n';
         }
-        case 3:
+        break;
+    }
+    case 3:
+    {
+        // adding random space
+        for (int i = 0; i < num_changes; i++)
         {
-            //adding random space
-            for (int i = 0; i < num_changes; i++)
-            {
-                int change = rand() % (correct.size() - 10) + 10;
-                correct.at(change) = ' ';
-            }
-            break;
+            int change = rand() % (correct.size() - 10) + 10;
+            correct.at(change) = ' ';
         }
-        case 4:
+        break;
+    }
+    case 4:
+    {
+        // adding random puntuation
+        for (int i = 0; i < num_changes; i++)
         {
-            //adding random puntuation
-            for (int i = 0; i < num_changes; i++)
-            {
-                int change = rand() % (correct.size() - 10) + 10;
-                correct.at(change) = VALID_PUNCTUATION[rand() % VALID_PUNCTUATION.size()];
-            }
-            break;
+            int change = rand() % (correct.size() - 10) + 10;
+            correct.at(change) = VALID_PUNCTUATION[rand() % VALID_PUNCTUATION.size()];
         }
-        case 5:
+        break;
+    }
+    case 5:
+    {
+        // adding random special char
+        for (int i = 0; i < num_changes; i++)
         {
-            //adding random special char
-            for (int i = 0; i < num_changes; i++)
-            {
-                int change = rand() % (correct.size() - 10) + 10;
-                correct.at(change) = ESCAPE_CHARS[rand() % ESCAPE_CHARS.size()];
-            }
-            break;
+            int change = rand() % (correct.size() - 10) + 10;
+            correct.at(change) = ESCAPE_CHARS[rand() % ESCAPE_CHARS.size()];
         }
-        case 6:
+        break;
+    }
+    case 6:
+    {
+        // adding "p cnf" in random places
+        for (int i = 0; i < num_changes; i++)
         {
-            //adding "p cnf" in random places
-            for (int i = 0; i < num_changes; i++)
-            {
-                int change = rand() % (correct.size() - 10) + 10;
-                correct.insert(change, "p cnf ");
-            }
-            break;
+            int change = rand() % (correct.size() - 10) + 10;
+            correct.insert(change, "p cnf ");
         }
-        case 7:
+        break;
+    }
+    case 7:
+    {
+        // adding boolean operators bit wise ||1 &&0 ^
+        for (int i = 0; i < num_changes; i++)
         {
-            //adding boolean operators bit wise ||1 &&0 ^
-            for (int i = 0; i < num_changes; i++)
-            {
-                int change = rand() % (correct.size() - 10) + 10;
-                correct.insert(change, BITWISE_OPERATOR[rand() % BITWISE_OPERATOR.size()]);
-            }
-            break;
+            int change = rand() % (correct.size() - 10) + 10;
+            correct.insert(change, BITWISE_OPERATOR[rand() % BITWISE_OPERATOR.size()]);
         }
-        case 8:
+        break;
+    }
+    case 8:
+    {
+        // adding long long max
+        for (int i = 0; i < num_changes; i++)
         {
-            //adding long long max
-            for (int i = 0; i < num_changes; i++)
-            {
-                int change = rand() % (correct.size() - 10) + 10;
-                correct.insert(change, OVERFLOW_LITERAL);
-            }
-            break;
+            int change = rand() % (correct.size() - 10) + 10;
+            correct.insert(change, OVERFLOW_LITERAL);
         }
-        case 9:
+        break;
+    }
+    case 9:
+    {
+        // adding random bytes
+        for (int i = 0; i < num_changes; i++)
         {
-            // adding random bytes
-            for (int i = 0; i < num_changes; i++)
-            {
-                int change = rand() % (correct.size() - 10) + 10;
-                correct.insert(change, RANDOM_BYTES[rand() % RANDOM_BYTES.size()]);
-            }
-            break;
+            int change = rand() % (correct.size() - 10) + 10;
+            correct.insert(change, RANDOM_BYTES[rand() % RANDOM_BYTES.size()]);
         }
-        case 10:
+        break;
+    }
+    case 10:
+    {
+        // adding many different random things
+        for (int i = 0; i < num_changes; i++)
         {
-            // adding many different random things
-            for (int i = 0; i < num_changes; i++)
-            {
-                int change = rand() % (correct.size() - 10) + 10;
-                correct.insert(change, RANDOM_ALL[rand() % RANDOM_ALL.size()]);
-            }
-            break;
+            int change = rand() % (correct.size() - 10) + 10;
+            correct.insert(change, RANDOM_ALL[rand() % RANDOM_ALL.size()]);
         }
-        default:
-            break;
+        break;
+    }
+    default:
+        break;
     }
     return correct;
 }
@@ -252,7 +261,7 @@ void save_to_file(const char *output, int i)
     std::string grep_content = "";
     std::ofstream error_file(name);
 
-    for (size_t j = 0; j < 15; j++)
+    for (size_t j = 0; j < 17; j++)
     {
 
         auto res = grep_output(output, REGEX[j]);

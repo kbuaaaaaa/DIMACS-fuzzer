@@ -55,6 +55,8 @@ std::string REGEX[] = {
     "^.*runtime error:.*shift",
     "^.*runtime error:.*integer",
     ".*runtime error:",
+    "^==.*AddressSanitizer: SEGV",
+    "^==.*AddressSanitizer: requested allocation size",
     "^==.*AddressSanitizer: heap-use-after-free",
     "^==.*AddressSanitizer: heap-buffer-overflow",
     "^==.*AddressSanitizer: stack-buffer-overflow",
