@@ -3,7 +3,9 @@
 long COUNTER = 0;
 long INPUT_COUNTER = 0;
 long CURRENT_COUNTER = 0;
+
 Error Errors[17];
+int ErrorOutputs = 0;
 
 int main(int argc, char *argv[])
 {
@@ -27,7 +29,7 @@ int main(int argc, char *argv[])
 
     set_edge_cases();
     run_one_time_edge_cases(SATPath);
-    
+
     while (true)
     {
         generate_cnf_files();
@@ -44,7 +46,7 @@ int main(int argc, char *argv[])
 
 void generate_cnf_files()
 {
-    if (rand() % 101 <10)
+    if (rand() % 101 < 10)
         generate_correct_cnf_files();
     else
         generate_trash_cnf_files();
@@ -97,7 +99,6 @@ std::string generate_correct_cnf()
         num_vars = rand() % 400 + 1;
         num_clauses = rand() % 400 + 1;
     }
-
 
     ss_cnf << "p cnf " << num_vars << " " << num_clauses << "\n";
     for (int i = 0; i < num_clauses; ++i)
@@ -264,9 +265,37 @@ void save_to_file(const char *output, int i)
 
         if (!res.isEmpty)
         {
+            if (ErrorOutputs > 20)
+            {
+                Error *maxError = &(Errors[0]);
+                for (int k = 1; k < 17; k++)
+                {
+                    if (Errors[k].count > maxError->count)
+                    {
+                        maxError = &(Errors[k]);
+                    }
+                }
+
+                std::string command = "rm fuzzed-tests/" + maxError->filename[maxError->count - 1];
+
+                if (std::system(command.c_str()) == 0)
+                {
+                    std::cout << "File removed successfully. " << command.c_str() << std::endl;
+                }
+                else
+                {
+                    std::cerr << "File remove failed. " << command.c_str() << std::endl;
+                }
+
+                maxError->filename[maxError->count - 1].clear();
+                maxError->count--;
+                ErrorOutputs--;
+            }
+
             grep_content += res.result + "\n";
+            Errors[j].filename[Errors[j].count] = "AUTOGEN_" + std::to_string(i) + ".cnf";
             Errors[j].count++;
-            Errors[j].filename->append("AUTOGEN_" + std::to_string(i) + ".cnf");
+            ErrorOutputs++;
         }
     }
 
@@ -275,15 +304,15 @@ void save_to_file(const char *output, int i)
         error_file << grep_content << "\n";
         error_file << output << "\n";
 
-        std::string command = "cp inputs/AUTOGEN_" + std::to_string(i) + ".cnf fuzzed-tests/test" + std::to_string(i) + ".cnf";
+        std::string command = "cp inputs/AUTOGEN_" + std::to_string(i) + ".cnf fuzzed-tests/AUTOGEN_" + std::to_string(i) + ".cnf";
 
         if (std::system(command.c_str()) == 0)
         {
-            std::cout << "File copied successfully." << std::endl;
+            std::cout << "File copied successfully. " << command.c_str() << std::endl;
         }
         else
         {
-            std::cerr << "File copy failed." << std::endl;
+            std::cerr << "File copy failed. " << command.c_str() << std::endl;
         }
     }
 
@@ -319,12 +348,16 @@ void set_edge_cases()
 
     file << "";
     file.close();
-    
+
     INPUT_COUNTER += 1;
 
     name = "inputs/AUTOGEN_" + std::to_string(INPUT_COUNTER) + ".cnf";
     file.open(name);
-    file << "p cnf " << "1000000000000" << " " << "1000000000000" << "\n";
+    file << "p cnf "
+         << "1000000000000"
+         << " "
+         << "1000000000000"
+         << "\n";
     file << "1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 0\n";
     file.close();
 
@@ -371,9 +404,9 @@ void run_one_time_edge_cases(std::string SATPath)
 {
     for (int i = CURRENT_COUNTER; i < INPUT_COUNTER; i++)
     {
-            std::string InputPath = "inputs/AUTOGEN_" + std::to_string(i) + ".cnf";
-            auto SUTProcess = subprocess::Popen({SATPath, InputPath}, subprocess::output(subprocess::PIPE), subprocess::error(subprocess::PIPE));
-            execute(SUTProcess);
+        std::string InputPath = "inputs/AUTOGEN_" + std::to_string(i) + ".cnf";
+        auto SUTProcess = subprocess::Popen({SATPath, InputPath}, subprocess::output(subprocess::PIPE), subprocess::error(subprocess::PIPE));
+        execute(SUTProcess);
     }
     CURRENT_COUNTER = INPUT_COUNTER;
 
