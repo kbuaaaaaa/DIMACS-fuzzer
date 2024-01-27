@@ -3,12 +3,13 @@
 #include <chrono>
 #include <thread>
 #include <future>
-#include "subprocess.hpp"
 #include <sstream>
 #include <climits>
 #include <vector>
 #include <regex>
 #include <map>
+#include "subprocess.hpp"
+#include "HTTPRequest.hpp"
 
 
 std::string OVERFLOW_LITERAL = std::to_string(LLONG_MAX + 1);
@@ -55,6 +56,8 @@ std::string REGEX[] = {
     "^.*runtime error:.*shift",
     "^.*runtime error:.*integer",
     ".*runtime error:",
+    "^==.*AddressSanitizer: SEGV",
+    "^==.*AddressSanitizer: requested allocation size",
     "^==.*AddressSanitizer: heap-use-after-free",
     "^==.*AddressSanitizer: heap-buffer-overflow",
     "^==.*AddressSanitizer: stack-buffer-overflow",

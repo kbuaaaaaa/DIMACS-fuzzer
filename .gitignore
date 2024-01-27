@@ -8,3 +8,4 @@ sat
 # Fuzzer outputs
 fuzzed-tests/
 inputs/
+fuzz-sat
