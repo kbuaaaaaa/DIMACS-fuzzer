@@ -278,10 +278,10 @@ void save_to_file(const char *output, int i)
     {
 
         auto res = grep_output(output, REGEX[j]);
-        grep_content += res.result + "\n";
 
         if (!res.isEmpty)
         {
+            grep_content += res.result + "\n";
             Errors[j].count++;
             Errors[j].filename->append("AUTOGEN_" + std::to_string(i) + ".cnf");
         }
