@@ -4,7 +4,7 @@ long COUNTER = 0;
 long INPUT_COUNTER = 0;
 long CURRENT_COUNTER = 0;
 
-Error Errors[16];
+Error Errors[17];
 int FilesCopied = 0;
 
 int main(int argc, char *argv[])
@@ -89,10 +89,10 @@ std::string generate_correct_cnf()
     int randomChance = (rand() % (101));
     std::stringstream ss_cnf;
 
-    if (randomChance < 1)
+    if (randomChance < 15)
     {
-        num_vars = (rand() % (5000 - 3500)) + 3500;
-        num_clauses = (rand() % (5000 - 3500)) + 3500;
+        num_vars = (rand() % (1000 - 500)) + 500;
+        num_clauses = (rand() % (1000 - 500)) + 500;
     }
     else if(randomChance<50)
     {
