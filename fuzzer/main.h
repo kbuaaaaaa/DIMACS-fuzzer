@@ -50,7 +50,7 @@ enum ErrorType {
     UB_ERROR
 };
 
-int REGEX_ERRORS = 17;
+const int REGEX_ERRORS = 18;
 std::string REGEX[] = {
     "SAT killed timeout",
     "^.*runtime error:.*negation",
@@ -58,6 +58,7 @@ std::string REGEX[] = {
     "^.*runtime error:.*shift",
     "^.*runtime error:.*integer",
     "^.*runtime error: variable length",
+    "^.*runtime error: load of misaligned address",
     "^==.*AddressSanitizer: SEGV",
     "^==.*AddressSanitizer: requested allocation size",
     "^==.*AddressSanitizer: heap-use-after-free",
@@ -74,7 +75,7 @@ std::string REGEX[] = {
 struct Error
 {
     int count = 0;
-    std::string filename[20];
+    std::string filename[1024];
 };
 
 

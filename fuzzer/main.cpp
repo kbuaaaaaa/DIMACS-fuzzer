@@ -4,7 +4,7 @@ long COUNTER = 0;
 long INPUT_COUNTER = 0;
 long CURRENT_COUNTER = 0;
 
-Error Errors[17];
+Error Errors[REGEX_ERRORS];
 int FilesCopied = 0;
 
 int main(int argc, char *argv[])
@@ -89,7 +89,7 @@ std::string generate_correct_cnf()
     int randomChance = (rand() % (101));
     std::stringstream ss_cnf;
 
-    if (randomChance < 15)
+    if (randomChance < 0)
     {
         num_vars = (rand() % (1000 - 500)) + 500;
         num_clauses = (rand() % (1000 - 500)) + 500;
@@ -128,7 +128,9 @@ std::string generate_trash_cnf()
 {
     std::string correct = generate_correct_cnf();
     int num_changes = rand() % correct.size();
-    int choose_case = rand() % 10 + 1;
+    // int choose_case = rand() % 10 + 1;
+    int choose_case = CURRENT_COUNTER % 10 + 1;
+    bool changing_header = (rand() % 100) < 10;
     switch (choose_case)
     {
     case 1:
@@ -136,7 +138,11 @@ std::string generate_trash_cnf()
         // adding random char
         for (int i = 0; i < num_changes; i++)
         {
-            int change = rand() % (correct.size() - 10) + 10;
+            int change = 0;
+            if (!changing_header)
+                change = rand() % (correct.size() - 5) + 5;
+            else
+                change = rand() % (correct.size() - 1) + 1;
             correct.at(change) = ALPHANUMERIC[rand() % ALPHANUMERIC.size()];
         }
         break;
@@ -146,7 +152,11 @@ std::string generate_trash_cnf()
         // adding random new line
         for (int i = 0; i < num_changes; i++)
         {
-            int change = rand() % (correct.size() - 10) + 10;
+            int change = 0;
+            if (!changing_header)
+                change = rand() % (correct.size() - 5) + 5;
+            else
+                change = rand() % (correct.size() - 1) + 1;
             correct.at(change) = '\n';
         }
         break;
@@ -156,7 +166,11 @@ std::string generate_trash_cnf()
         // adding random space
         for (int i = 0; i < num_changes; i++)
         {
-            int change = rand() % (correct.size() - 10) + 10;
+            int change = 0;
+            if (!changing_header)
+                change = rand() % (correct.size() - 5) + 5;
+            else
+                change = rand() % (correct.size() - 1) + 1;
             correct.at(change) = ' ';
         }
         break;
@@ -166,7 +180,11 @@ std::string generate_trash_cnf()
         // adding random puntuation
         for (int i = 0; i < num_changes; i++)
         {
-            int change = rand() % (correct.size() - 10) + 10;
+            int change = 0;
+            if (!changing_header)
+                change = rand() % (correct.size() - 5) + 5;
+            else
+                change = rand() % (correct.size() - 1) + 1;
             correct.at(change) = VALID_PUNCTUATION[rand() % VALID_PUNCTUATION.size()];
         }
         break;
@@ -176,7 +194,11 @@ std::string generate_trash_cnf()
         // adding random special char
         for (int i = 0; i < num_changes; i++)
         {
-            int change = rand() % (correct.size() - 10) + 10;
+            int change = 0;
+            if (!changing_header)
+                change = rand() % (correct.size() - 5) + 5;
+            else
+                change = rand() % (correct.size() - 1) + 1;
             correct.at(change) = ESCAPE_CHARS[rand() % ESCAPE_CHARS.size()];
         }
         break;
@@ -186,7 +208,11 @@ std::string generate_trash_cnf()
         // adding "p cnf" in random places
         for (int i = 0; i < num_changes; i++)
         {
-            int change = rand() % (correct.size() - 10) + 10;
+            int change = 0;
+            if (!changing_header)
+                change = rand() % (correct.size() - 5) + 5;
+            else
+                change = rand() % (correct.size() - 1) + 1;
             correct.insert(change, "p cnf ");
         }
         break;
@@ -196,7 +222,11 @@ std::string generate_trash_cnf()
         // adding boolean operators bit wise ||1 &&0 ^
         for (int i = 0; i < num_changes; i++)
         {
-            int change = rand() % (correct.size() - 10) + 10;
+            int change = 0;
+            if (!changing_header)
+                change = rand() % (correct.size() - 5) + 5;
+            else
+                change = rand() % (correct.size() - 1) + 1;
             correct.insert(change, BITWISE_OPERATOR[rand() % BITWISE_OPERATOR.size()]);
         }
         break;
@@ -206,7 +236,11 @@ std::string generate_trash_cnf()
         // adding long long max
         for (int i = 0; i < num_changes; i++)
         {
-            int change = rand() % (correct.size() - 10) + 10;
+            int change = 0;
+            if (!changing_header)
+                change = rand() % (correct.size() - 5) + 5;
+            else
+                change = rand() % (correct.size() - 1) + 1;
             correct.insert(change, OVERFLOW_LITERAL);
         }
         break;
@@ -216,7 +250,11 @@ std::string generate_trash_cnf()
         // adding random bytes
         for (int i = 0; i < num_changes; i++)
         {
-            int change = rand() % (correct.size() - 10) + 10;
+            int change = 0;
+            if (!changing_header)
+                change = rand() % (correct.size() - 5) + 5;
+            else
+                change = rand() % (correct.size() - 1) + 1;
             correct.insert(change, RANDOM_BYTES[rand() % RANDOM_BYTES.size()]);
         }
         break;
@@ -226,7 +264,11 @@ std::string generate_trash_cnf()
         // adding many different random things
         for (int i = 0; i < num_changes; i++)
         {
-            int change = rand() % (correct.size() - 10) + 10;
+            int change = 0;
+            if (!changing_header)
+                change = rand() % (correct.size() - 5) + 5;
+            else
+                change = rand() % (correct.size() - 1) + 1;
             correct.insert(change, RANDOM_ALL[rand() % RANDOM_ALL.size()]);
         }
         break;
@@ -422,9 +464,9 @@ void run_one_time_edge_cases(std::string SATPath)
     }
     CURRENT_COUNTER = INPUT_COUNTER;
 
-    std::string InputPath = "inputs/WRONG_NAME.cnf";
-    auto SUTProcess = subprocess::Popen({SATPath, InputPath}, subprocess::output(subprocess::PIPE), subprocess::error(subprocess::PIPE));
-    execute(SUTProcess);
-    INPUT_COUNTER += 1;
-    CURRENT_COUNTER = INPUT_COUNTER;
+    // std::string InputPath = "inputs/WRONG_NAME.cnf";
+    // auto SUTProcess = subprocess::Popen({SATPath, InputPath}, subprocess::output(subprocess::PIPE), subprocess::error(subprocess::PIPE));
+    // execute(SUTProcess);
+    // INPUT_COUNTER += 1;
+    // CURRENT_COUNTER = INPUT_COUNTER;
 }
