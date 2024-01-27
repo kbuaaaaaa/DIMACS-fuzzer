@@ -70,10 +70,9 @@ std::string REGEX[] = {
     "^==.*UndefinedBehaviorSanitizer"
 };
 
-
 struct Error
 {
-    int count;
+    int count = 0;
     std::string filename[20];
 };
 
