@@ -1,12 +1,10 @@
 #include "main.h"
 
-long OUTPUT_COUNTER = 0;
 long INPUT_COUNTER = 0;
 long CURRENT_COUNTER = 0;
 Error Errors[REGEX_ERRORS];
 int FilesCopied = 0;
 
-std::mutex OutputCounterMutex;
 std::mutex InputCounterMutex;
 std::mutex CurrentCounterMutex;
 std::mutex FilesCopiedMutex;
@@ -61,7 +59,7 @@ void fuzz(std::string SATPath){
             CurrentCounterMutex.unlock();
             std::string InputPath = "inputs/AUTOGEN_" + std::to_string(CurrentInput) + ".cnf";
             auto SUTProcess = subprocess::Popen({SATPath, InputPath}, subprocess::output(subprocess::PIPE), subprocess::error(subprocess::PIPE));
-            execute(SUTProcess);
+            execute(SUTProcess, CurrentInput);
             InputCounterMutex.lock();
             MaxInput = INPUT_COUNTER;
             InputCounterMutex.unlock();
@@ -319,10 +317,10 @@ GrepReturn grep_output(const std::string &output, const std::string &pattern)
     return GrepReturn{result, result.empty()};
 }
 
-void save_to_file(const char *raw_error_output, long i)
+void save_to_file(const char *raw_error_output, long CurrentInput)
 {
     // ASYNC WRITE HERE
-    std::string name = "fuzzed-tests/test_error_" + std::to_string(i) + ".txt";
+    std::string name = "fuzzed-tests/test_error_" + std::to_string(CurrentInput) + ".txt";
     std::string grep_content = "";
     std::ofstream error_file(name);
     FilesCopiedMutex.lock();
@@ -378,7 +376,7 @@ void save_to_file(const char *raw_error_output, long i)
             }
 
             grep_content += res.result + "\n";
-            Errors[j].filename.push_back("AUTOGEN_" + std::to_string(i) + ".cnf");
+            Errors[j].filename.push_back("AUTOGEN_" + std::to_string(CurrentInput) + ".cnf");
         }
     }
 
@@ -387,7 +385,7 @@ void save_to_file(const char *raw_error_output, long i)
         error_file << grep_content << "\n";
         error_file << raw_error_output << "\n";
 
-        std::string command = "cp inputs/AUTOGEN_" + std::to_string(i) + ".cnf fuzzed-tests/AUTOGEN_" + std::to_string(i) + ".cnf";
+        std::string command = "cp inputs/AUTOGEN_" + std::to_string(CurrentInput) + ".cnf fuzzed-tests/AUTOGEN_" + std::to_string(CurrentInput) + ".cnf";
 
         if (std::system(command.c_str()) == 0)
         {
@@ -418,7 +416,7 @@ void save_to_file(const char *raw_error_output, long i)
     FilesCopiedMutex.unlock();
 }
 
-void execute(subprocess::Popen &SUTProcess)
+void execute(subprocess::Popen &SUTProcess, long CurrentInput)
 {
     std::future<void> future = std::async(std::launch::async, [&]()
                                           { SUTProcess.wait(); });
@@ -427,18 +425,12 @@ void execute(subprocess::Popen &SUTProcess)
     {
         std::cerr << "SAT killed timeout reached -> ERROR: Infinite LOOP\n";
         SUTProcess.kill(15);
-        OutputCounterMutex.lock();
-        long CurrentOutput = OUTPUT_COUNTER++;
-        OutputCounterMutex.unlock();
-        save_to_file("SAT killed timeout reached -> ERROR: Infinite LOOP\n", CurrentOutput);
+        save_to_file("SAT killed timeout reached -> ERROR: Infinite LOOP\n", CurrentInput);
     }
     else if (SUTProcess.retcode() != 0)
     {
         auto output = SUTProcess.communicate();
-        OutputCounterMutex.lock();
-        long CurrentOutput = OUTPUT_COUNTER++;
-        OutputCounterMutex.unlock();
-        save_to_file(output.second.buf.data(), CurrentOutput);
+        save_to_file(output.second.buf.data(), CurrentInput);
     }
 }
 
@@ -507,7 +499,7 @@ void run_one_time_edge_cases(std::string SATPath)
     {
         std::string InputPath = "inputs/AUTOGEN_" + std::to_string(i) + ".cnf";
         auto SUTProcess = subprocess::Popen({SATPath, InputPath}, subprocess::output(subprocess::PIPE), subprocess::error(subprocess::PIPE));
-        execute(SUTProcess);
+        execute(SUTProcess, i);
     }
     CURRENT_COUNTER = INPUT_COUNTER;
 
