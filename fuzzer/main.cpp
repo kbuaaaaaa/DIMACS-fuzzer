@@ -3,12 +3,14 @@
 long OUTPUT_COUNTER = 0;
 long INPUT_COUNTER = 0;
 long CURRENT_COUNTER = 0;
+Error Errors[REGEX_ERRORS];
+int FilesCopied = 0;
+
 std::mutex OutputCounterMutex;
 std::mutex InputCounterMutex;
 std::mutex CurrentCounterMutex;
-
-Error Errors[REGEX_ERRORS];
-int FilesCopied = 0;
+std::mutex FilesCopiedMutex;
+std::mutex ErrorsMutex;
 
 int main(int argc, char *argv[])
 {
@@ -323,7 +325,8 @@ void save_to_file(const char *raw_error_output, long i)
     std::string name = "fuzzed-tests/test_error_" + std::to_string(i) + ".txt";
     std::string grep_content = "";
     std::ofstream error_file(name);
-
+    FilesCopiedMutex.lock();
+    ErrorsMutex.lock();
     for (size_t j = 0; j < REGEX_ERRORS; j++)
     {
 
@@ -395,6 +398,7 @@ void save_to_file(const char *raw_error_output, long i)
         {
             std::cerr << "File copy failed. " << command.c_str() << std::endl;
         }
+    
     }
 
     printf("----------------------------------------------------\n");
@@ -410,6 +414,8 @@ void save_to_file(const char *raw_error_output, long i)
     printf("----------------------------------------------------\n");
 
     error_file.close();
+    ErrorsMutex.unlock();
+    FilesCopiedMutex.unlock();
 }
 
 void execute(subprocess::Popen &SUTProcess)
