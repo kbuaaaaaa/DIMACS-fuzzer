@@ -1,8 +1,11 @@
 #include "main.h"
 
-long COUNTER = 0;
+long OUTPUT_COUNTER = 0;
 long INPUT_COUNTER = 0;
 long CURRENT_COUNTER = 0;
+std::mutex OutputCounterMutex;
+std::mutex InputCounterMutex;
+std::mutex CurrentCounterMutex;
 
 Error Errors[REGEX_ERRORS];
 int FilesCopied = 0;
@@ -30,56 +33,72 @@ int main(int argc, char *argv[])
     set_edge_cases();
     run_one_time_edge_cases(SATPath);
 
-    while (true)
-    {
-        generate_cnf_files();
-        // generate input
-        for (int i = CURRENT_COUNTER; i < INPUT_COUNTER; i++)
-        {
-            std::string InputPath = "inputs/AUTOGEN_" + std::to_string(i) + ".cnf";
+    // generate input
+    std::thread InputGenerationThread(generate_cnf_files);
+    std::thread FuzzingThread1(fuzz, SATPath);
+    std::thread FuzzingThread2(fuzz, SATPath);
+    fuzz(SATPath);
+
+    FuzzingThread1.join();
+    FuzzingThread2.join();
+    InputGenerationThread.join();
+}
+
+void fuzz(std::string SATPath){
+    while(true){
+        InputCounterMutex.lock();
+        long MaxInput = INPUT_COUNTER;
+        InputCounterMutex.unlock();
+        CurrentCounterMutex.lock();
+        long CurrentInput = CURRENT_COUNTER;
+        CurrentCounterMutex.unlock();
+        // There is a chance this is vulnerable to race condition
+        while (CurrentInput < MaxInput){
+            CurrentCounterMutex.lock();
+            CurrentInput = CURRENT_COUNTER++;
+            CurrentCounterMutex.unlock();
+            std::string InputPath = "inputs/AUTOGEN_" + std::to_string(CurrentInput) + ".cnf";
             auto SUTProcess = subprocess::Popen({SATPath, InputPath}, subprocess::output(subprocess::PIPE), subprocess::error(subprocess::PIPE));
             execute(SUTProcess);
+            InputCounterMutex.lock();
+            MaxInput = INPUT_COUNTER;
+            InputCounterMutex.unlock();
         }
-        CURRENT_COUNTER = INPUT_COUNTER;
     }
 }
 
 void generate_cnf_files()
 {
-    if (rand() % 101 < 30)
-        generate_correct_cnf_files();
-    else
-        generate_trash_cnf_files();
+    while(true){
+        if (rand() % 101 < 30)
+            generate_correct_cnf_files();
+        else
+            generate_trash_cnf_files();
+    }
 }
 
 void generate_correct_cnf_files()
 {
-    for (int i = 0; i < 5; i++)
-    {
+    std::string name = "inputs/AUTOGEN_" + std::to_string(INPUT_COUNTER) + ".cnf";
+    std::ofstream file(name);
 
-        std::string name = "inputs/AUTOGEN_" + std::to_string(INPUT_COUNTER) + ".cnf";
-        std::ofstream file(name);
-
-        file << generate_correct_cnf() << "\n";
-        file.close();
-
-        INPUT_COUNTER += 1;
-    }
+    file << generate_correct_cnf() << "\n";
+    file.close();
+    InputCounterMutex.lock();
+    INPUT_COUNTER++;
+    InputCounterMutex.unlock();
 }
 
 void generate_trash_cnf_files()
 {
-    for (int i = 0; i < 5; i++)
-    {
+    std::string name = "inputs/AUTOGEN_" + std::to_string(INPUT_COUNTER) + ".cnf";
+    std::ofstream file(name);
 
-        std::string name = "inputs/AUTOGEN_" + std::to_string(INPUT_COUNTER) + ".cnf";
-        std::ofstream file(name);
-
-        file << generate_trash_cnf() << "\n";
-        file.close();
-
-        INPUT_COUNTER += 1;
-    }
+    file << generate_trash_cnf() << "\n";
+    file.close();
+    InputCounterMutex.lock();
+    INPUT_COUNTER++;
+    InputCounterMutex.unlock();
 }
 
 std::string generate_correct_cnf()
@@ -298,7 +317,7 @@ GrepReturn grep_output(const std::string &output, const std::string &pattern)
     return GrepReturn{result, result.empty()};
 }
 
-void save_to_file(const char *raw_error_output, int i)
+void save_to_file(const char *raw_error_output, long i)
 {
     // ASYNC WRITE HERE
     std::string name = "fuzzed-tests/test_error_" + std::to_string(i) + ".txt";
@@ -382,7 +401,7 @@ void save_to_file(const char *raw_error_output, int i)
 
     for (int k = 0; k < REGEX_ERRORS; k++)
     {
-        printf("Error: %d   Appeared: %d times\n", k, Errors[k].filename.size());
+        printf("Error: %d   Appeared: %lu times\n", k, Errors[k].filename.size());
         for (int l = 0; l < Errors[k].filename.size(); l++)
         {
             printf("File: %s\n", Errors[k].filename[l].c_str());
@@ -402,16 +421,18 @@ void execute(subprocess::Popen &SUTProcess)
     {
         std::cerr << "SAT killed timeout reached -> ERROR: Infinite LOOP\n";
         SUTProcess.kill(15);
-
-        save_to_file("SAT killed timeout reached -> ERROR: Infinite LOOP\n", COUNTER);
-        COUNTER = COUNTER + 1;
+        OutputCounterMutex.lock();
+        long CurrentOutput = OUTPUT_COUNTER++;
+        OutputCounterMutex.unlock();
+        save_to_file("SAT killed timeout reached -> ERROR: Infinite LOOP\n", CurrentOutput);
     }
     else if (SUTProcess.retcode() != 0)
     {
         auto output = SUTProcess.communicate();
-
-        save_to_file(output.second.buf.data(), COUNTER);
-        COUNTER = COUNTER + 1;
+        OutputCounterMutex.lock();
+        long CurrentOutput = OUTPUT_COUNTER++;
+        OutputCounterMutex.unlock();
+        save_to_file(output.second.buf.data(), CurrentOutput);
     }
 }
 
