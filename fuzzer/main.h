@@ -75,8 +75,7 @@ std::string REGEX[] = {
 
 struct Error
 {
-    int count = 0;
-    std::string filename[1024];
+    std::vector<std::string> filename;
 };
 
 
