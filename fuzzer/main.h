@@ -31,6 +31,7 @@ void generate_correct_cnf_files();
 void generate_trash_cnf_files();
 std::string generate_correct_cnf();
 std::string generate_trash_cnf();
+void fuzz(std::string SATPath);
 
 
 enum ErrorType {
