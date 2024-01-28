@@ -37,6 +37,7 @@ int main(int argc, char *argv[])
     std::thread InputGenerationThread(generate_cnf_files);
     std::thread FuzzingThread1(fuzz, SATPath);
     std::thread FuzzingThread2(fuzz, SATPath);
+    fuzz(SATPath);
 
     FuzzingThread1.join();
     FuzzingThread2.join();
@@ -51,6 +52,7 @@ void fuzz(std::string SATPath){
         CurrentCounterMutex.lock();
         long CurrentInput = CURRENT_COUNTER;
         CurrentCounterMutex.unlock();
+        // There is a chance this is vulnerable to race condition
         while (CurrentInput < MaxInput){
             CurrentCounterMutex.lock();
             CurrentInput = CURRENT_COUNTER++;
