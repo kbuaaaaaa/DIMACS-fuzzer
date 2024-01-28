@@ -94,7 +94,7 @@ std::string generate_correct_cnf()
         num_vars = (rand() % (1000 - 500)) + 500;
         num_clauses = (rand() % (1000 - 500)) + 500;
     }
-    else if(randomChance<50)
+    else if (randomChance < 50)
     {
         num_vars = rand() % 400 + 1;
         num_clauses = rand() % 400 + 1;
@@ -104,7 +104,6 @@ std::string generate_correct_cnf()
         num_vars = rand() % 40 + 1;
         num_clauses = rand() % 40 + 1;
     }
-    
 
     ss_cnf << "p cnf " << num_vars << " " << num_clauses << "\n";
     for (int i = 0; i < num_clauses; ++i)
@@ -299,7 +298,7 @@ GrepReturn grep_output(const std::string &output, const std::string &pattern)
     return GrepReturn{result, result.empty()};
 }
 
-void save_to_file(const char *output, int i)
+void save_to_file(const char *raw_error_output, int i)
 {
     // ASYNC WRITE HERE
     std::string name = "fuzzed-tests/test_error_" + std::to_string(i) + ".txt";
@@ -309,18 +308,20 @@ void save_to_file(const char *output, int i)
     for (size_t j = 0; j < REGEX_ERRORS; j++)
     {
 
-        auto res = grep_output(output, REGEX[j]);
+        auto res = grep_output(raw_error_output, REGEX[j]);
 
         if (!res.isEmpty)
         {
-            if (FilesCopied >= 20)
+            if (FilesCopied > 20)
             {
                 Error *maxError = &(Errors[0]);
+                int currentMax = 0;
                 for (int k = 1; k < REGEX_ERRORS; k++)
                 {
                     if (Errors[k].count > maxError->count)
                     {
                         maxError = &(Errors[k]);
+                        currentMax = k;
                     }
                 }
 
@@ -328,8 +329,25 @@ void save_to_file(const char *output, int i)
 
                 if (std::system(command.c_str()) == 0)
                 {
+
+                    for (int e = 0; e < REGEX_ERRORS; e++)
+                    {
+                        if (e == currentMax)
+                            continue;
+                            
+                        for (int f = 0; f < Errors[e].count; f++)
+                        {
+                            if (Errors[e].filename[f] == maxError->filename[maxError->count - 1])
+                            {
+                                Errors[e].filename[f].clear();
+                                Errors[e].count--;
+                            }
+                        }
+                    }
+
                     maxError->filename[maxError->count - 1].clear();
-                    maxError->count--;
+                    maxError->count--; // only for 1 type of error
+
                     FilesCopied--;
                     std::cout << "File removed successfully. " << command.c_str() << std::endl;
                 }
@@ -348,7 +366,7 @@ void save_to_file(const char *output, int i)
     if (grep_content != "")
     {
         error_file << grep_content << "\n";
-        error_file << output << "\n";
+        error_file << raw_error_output << "\n";
 
         std::string command = "cp inputs/AUTOGEN_" + std::to_string(i) + ".cnf fuzzed-tests/AUTOGEN_" + std::to_string(i) + ".cnf";
 
@@ -365,8 +383,9 @@ void save_to_file(const char *output, int i)
 
     printf("----------------------------------------------------\n");
 
-    for(int llll = 0; llll< REGEX_ERRORS;llll++){
-        printf("Error: %d   Appeared: %d times\n",llll,Errors[llll].count);
+    for (int k = 0; k < REGEX_ERRORS; k++)
+    {
+        printf("Error: %d   Appeared: %d times\n", k, Errors[k].count);
     }
     printf("----------------------------------------------------\n");
 
