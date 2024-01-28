@@ -312,20 +312,20 @@ void save_to_file(const char *raw_error_output, int i)
 
         if (!res.isEmpty)
         {
-            if (FilesCopied > 20)
+            if (FilesCopied > 19)
             {
                 Error *maxError = &(Errors[0]);
                 int currentMax = 0;
                 for (int k = 1; k < REGEX_ERRORS; k++)
                 {
-                    if (Errors[k].count > maxError->count)
+                    if (Errors[k].filename.size() > maxError->filename.size())
                     {
                         maxError = &(Errors[k]);
                         currentMax = k;
                     }
                 }
 
-                std::string command = "rm fuzzed-tests/" + maxError->filename[maxError->count - 1];
+                std::string command = "rm fuzzed-tests/" + maxError->filename.back();
 
                 if (std::system(command.c_str()) == 0)
                 {
@@ -334,19 +334,17 @@ void save_to_file(const char *raw_error_output, int i)
                     {
                         if (e == currentMax)
                             continue;
-                            
-                        for (int f = 0; f < Errors[e].count; f++)
+
+                        for (int f = 0; f < Errors[e].filename.size(); f++)
                         {
-                            if (Errors[e].filename[f] == maxError->filename[maxError->count - 1])
+                            if (Errors[e].filename[f] == maxError->filename.back())
                             {
-                                Errors[e].filename[f].clear();
-                                Errors[e].count--;
+                                Errors[e].filename.erase(Errors[e].filename.begin() + f);
                             }
                         }
                     }
 
-                    maxError->filename[maxError->count - 1].clear();
-                    maxError->count--; // only for 1 type of error
+                    maxError->filename.pop_back();
 
                     FilesCopied--;
                     std::cout << "File removed successfully. " << command.c_str() << std::endl;
@@ -358,8 +356,7 @@ void save_to_file(const char *raw_error_output, int i)
             }
 
             grep_content += res.result + "\n";
-            Errors[j].filename[Errors[j].count] = "AUTOGEN_" + std::to_string(i) + ".cnf";
-            Errors[j].count++;
+            Errors[j].filename.push_back("AUTOGEN_" + std::to_string(i) + ".cnf");
         }
     }
 
@@ -385,7 +382,11 @@ void save_to_file(const char *raw_error_output, int i)
 
     for (int k = 0; k < REGEX_ERRORS; k++)
     {
-        printf("Error: %d   Appeared: %d times\n", k, Errors[k].count);
+        printf("Error: %d   Appeared: %d times\n", k, Errors[k].filename.size());
+        for (int l = 0; l < Errors[k].filename.size(); l++)
+        {
+            printf("File: %s\n", Errors[k].filename[l].c_str());
+        }
     }
     printf("----------------------------------------------------\n");
 
