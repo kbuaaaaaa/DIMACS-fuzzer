@@ -3,6 +3,7 @@
 long COUNTER = 0;
 long INPUT_COUNTER = 0;
 long CURRENT_COUNTER = 0;
+std::mutex InputCounterMutex;
 
 Error Errors[REGEX_ERRORS];
 int FilesCopied = 0;
@@ -30,56 +31,58 @@ int main(int argc, char *argv[])
     set_edge_cases();
     run_one_time_edge_cases(SATPath);
 
+    std::thread InputGenerationThread(generate_cnf_files);
     while (true)
     {
-        generate_cnf_files();
         // generate input
-        for (int i = CURRENT_COUNTER; i < INPUT_COUNTER; i++)
-        {
-            std::string InputPath = "inputs/AUTOGEN_" + std::to_string(i) + ".cnf";
+        InputCounterMutex.lock();
+        long MaxInput = INPUT_COUNTER;
+        InputCounterMutex.unlock();
+        while(CURRENT_COUNTER < MaxInput){
+            std::string InputPath = "inputs/AUTOGEN_" + std::to_string(CURRENT_COUNTER++) + ".cnf";
             auto SUTProcess = subprocess::Popen({SATPath, InputPath}, subprocess::output(subprocess::PIPE), subprocess::error(subprocess::PIPE));
             execute(SUTProcess);
+            InputCounterMutex.lock();
+            MaxInput = INPUT_COUNTER;
+            InputCounterMutex.unlock();
         }
-        CURRENT_COUNTER = INPUT_COUNTER;
+
     }
+    InputGenerationThread.join();
 }
 
 void generate_cnf_files()
 {
-    if (rand() % 101 < 30)
-        generate_correct_cnf_files();
-    else
-        generate_trash_cnf_files();
+    while(true){
+        if (rand() % 101 < 30)
+            generate_correct_cnf_files();
+        else
+            generate_trash_cnf_files();
+    }
 }
 
 void generate_correct_cnf_files()
 {
-    for (int i = 0; i < 5; i++)
-    {
+    std::string name = "inputs/AUTOGEN_" + std::to_string(INPUT_COUNTER) + ".cnf";
+    std::ofstream file(name);
 
-        std::string name = "inputs/AUTOGEN_" + std::to_string(INPUT_COUNTER) + ".cnf";
-        std::ofstream file(name);
-
-        file << generate_correct_cnf() << "\n";
-        file.close();
-
-        INPUT_COUNTER += 1;
-    }
+    file << generate_correct_cnf() << "\n";
+    file.close();
+    InputCounterMutex.lock();
+    INPUT_COUNTER++;
+    InputCounterMutex.unlock();
 }
 
 void generate_trash_cnf_files()
 {
-    for (int i = 0; i < 5; i++)
-    {
+    std::string name = "inputs/AUTOGEN_" + std::to_string(INPUT_COUNTER) + ".cnf";
+    std::ofstream file(name);
 
-        std::string name = "inputs/AUTOGEN_" + std::to_string(INPUT_COUNTER) + ".cnf";
-        std::ofstream file(name);
-
-        file << generate_trash_cnf() << "\n";
-        file.close();
-
-        INPUT_COUNTER += 1;
-    }
+    file << generate_trash_cnf() << "\n";
+    file.close();
+    InputCounterMutex.lock();
+    INPUT_COUNTER++;
+    InputCounterMutex.unlock();
 }
 
 std::string generate_correct_cnf()
