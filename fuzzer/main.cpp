@@ -401,7 +401,7 @@ void save_to_file(const char *raw_error_output, long i)
 
     for (int k = 0; k < REGEX_ERRORS; k++)
     {
-        printf("Error: %d   Appeared: %d times\n", k, Errors[k].filename.size());
+        printf("Error: %d   Appeared: %lu times\n", k, Errors[k].filename.size());
         for (int l = 0; l < Errors[k].filename.size(); l++)
         {
             printf("File: %s\n", Errors[k].filename[l].c_str());
