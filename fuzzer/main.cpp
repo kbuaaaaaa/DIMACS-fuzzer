@@ -7,25 +7,11 @@ int FilesCopied = 0;
 
 std::mutex InputCounterMutex;
 std::mutex CurrentCounterMutex;
-std::mutex FilesCopiedMutex;
-std::mutex ErrorsMutex;
+
+ThreadSafeQueue<SaveToFileParams> saveToFileQueue;
 
 int main(int argc, char *argv[])
 {
-    // try
-    // {
-    //     // you can pass http::InternetProtocol::V6 to Request to make an IPv6 request
-    //     http::Request request{"http://172.167.164.98/"};
-
-    //     // send a get request
-    //     const auto response = request.send("GET");
-    //     std::cout << std::string{response.body.begin(), response.body.end()} << '\n'; // print the result
-    // }
-    // catch (const std::exception &e)
-    // {
-    //     std::cerr << "Request failed, error: " << e.what() << '\n';
-    // }
-
     std::string SATPath = argv[1];
     int seed = atoi(argv[2]);
     srand(seed);
@@ -33,25 +19,34 @@ int main(int argc, char *argv[])
     set_edge_cases();
     run_one_time_edge_cases(SATPath);
 
-    // generate input
     std::thread InputGenerationThread(generate_cnf_files);
+    std::thread OutputProcessingThread(process_output);
     std::thread FuzzingThread1(fuzz, SATPath);
     std::thread FuzzingThread2(fuzz, SATPath);
     fuzz(SATPath);
 
     FuzzingThread1.join();
     FuzzingThread2.join();
+    OutputProcessingThread.join();
     InputGenerationThread.join();
+}
+
+void process_output()
+{
+    while(true){
+        SaveToFileParams params = saveToFileQueue.pop();
+        save_to_file(params.raw_error_output, params.CurrentInput);
+    }
 }
 
 void fuzz(std::string SATPath){
     while(true){
         InputCounterMutex.lock();
-        long MaxInput = INPUT_COUNTER;
-        InputCounterMutex.unlock();
         CurrentCounterMutex.lock();
+        long MaxInput = INPUT_COUNTER;
         long CurrentInput = CURRENT_COUNTER;
         CurrentCounterMutex.unlock();
+        InputCounterMutex.unlock();
         // There is a chance this is vulnerable to race condition
         while (CurrentInput < MaxInput){
             CurrentCounterMutex.lock();
@@ -69,20 +64,38 @@ void fuzz(std::string SATPath){
 
 void generate_cnf_files()
 {
+    int InputChoice;
     while(true){
-        if (rand() % 101 < 30)
-            generate_correct_cnf_files();
+        InputChoice = rand() % 101;
+        if (InputChoice < 10)
+            generate_complex_correct_cnf_files();
+        else if (InputChoice < 30)
+            generate_simple_correct_cnf_files();
         else
             generate_trash_cnf_files();
+        std::this_thread::sleep_for(std::chrono::milliseconds(30));
     }
 }
 
-void generate_correct_cnf_files()
+void generate_complex_correct_cnf_files()
 {
-    std::string name = "inputs/AUTOGEN_" + std::to_string(INPUT_COUNTER) + ".cnf";
+    InputCounterMutex.lock();
+    std::string name = "inputs/AUTOGEN_" + std::to_string(INPUT_COUNTER++) + ".cnf";
+    InputCounterMutex.unlock();
     std::ofstream file(name);
 
-    file << generate_correct_cnf() << "\n";
+    file << generate_complex_correct_cnf() << "\n";
+    file.close();
+}
+
+void generate_simple_correct_cnf_files()
+{
+    InputCounterMutex.lock();
+    std::string name = "inputs/AUTOGEN_" + std::to_string(INPUT_COUNTER++) + ".cnf";
+    InputCounterMutex.unlock();
+    std::ofstream file(name);
+
+    file << generate_simple_correct_cnf() << "\n";
     file.close();
     InputCounterMutex.lock();
     INPUT_COUNTER++;
@@ -91,7 +104,9 @@ void generate_correct_cnf_files()
 
 void generate_trash_cnf_files()
 {
-    std::string name = "inputs/AUTOGEN_" + std::to_string(INPUT_COUNTER) + ".cnf";
+    InputCounterMutex.lock();
+    std::string name = "inputs/AUTOGEN_" + std::to_string(INPUT_COUNTER++) + ".cnf";
+    InputCounterMutex.unlock();
     std::ofstream file(name);
 
     file << generate_trash_cnf() << "\n";
@@ -101,13 +116,12 @@ void generate_trash_cnf_files()
     InputCounterMutex.unlock();
 }
 
-std::string generate_correct_cnf()
+std::string generate_simple_correct_cnf()
 {
     int num_vars = 0;
     int num_clauses = 0;
     int randomChance = (rand() % (101));
     std::stringstream ss_cnf;
-
     if (randomChance < 0)
     {
         num_vars = (rand() % (1000 - 500)) + 500;
@@ -123,7 +137,6 @@ std::string generate_correct_cnf()
         num_vars = rand() % 40 + 1;
         num_clauses = rand() % 40 + 1;
     }
-
     ss_cnf << "p cnf " << num_vars << " " << num_clauses << "\n";
     for (int i = 0; i < num_clauses; ++i)
     {
@@ -142,9 +155,84 @@ std::string generate_correct_cnf()
     return ss_cnf.str();
 }
 
+int pick(int from, int to) {
+    return (std::rand() % (to - from + 1)) + from;
+}
+
+std::string generate_complex_correct_cnf()
+{
+    std::stringstream output;
+    int max_width = pick(10, 70);
+    int nlayers = pick(1, 20);
+    std::vector<std::vector<int>> unused(nlayers);
+    std::vector<int> width(nlayers), low(nlayers), high(nlayers), clauses(nlayers), nunused(nlayers);
+
+    for (int i = 0; i < nlayers; i++) {
+        width[i] = pick(10, max_width);
+        low[i] = i ? high[i - 1] + 1 : 1;
+        high[i] = low[i] + width[i] - 1;
+        int m = width[i];
+        if (i) m += width[i - 1];
+        int n = (pick(300, 450) * m) / 100;
+        clauses[i] = n;
+
+        nunused[i] = 2 * (high[i] - low[i] + 1);
+        unused[i].resize(nunused[i]);
+        int k = 0;
+        for (int j = low[i]; j <= high[i]; j++){
+            unused[i][k++] = j;
+            unused[i][k++] = -j;
+        }
+    }
+
+    int n = 0;
+    int m = high[nlayers - 1];
+    std::vector<bool> used(m+1, 0);
+
+    for (int i = 0; i < nlayers; i++)
+        n += clauses[i];
+
+    output << "p cnf " << m << " " << n << std::endl;
+
+    for (int i = 0; i < nlayers; i++) {
+        for (int j = 0; j < clauses[i]; j++) {
+            int l = 3;
+            while (l < 100 && pick(1, 3) != 1)
+                l++;
+
+            for (int k = 0; k < l; k++) {
+                int layer = i;
+                int lit;
+                while (layer && pick(3, 4) == 3)
+                    layer--;
+                if (nunused[layer] > 0) {
+                    int o = nunused[layer] - 1;
+                    int p = pick(0, o);
+                    lit = unused[layer][p];
+                    if (used[std::abs(lit)]) continue;
+                    nunused[layer] = o;
+                    if (p != o) unused[layer][p] = unused[layer][o];
+                } else {
+                    lit = pick(low[layer], high[layer]);
+                    if (used[std::abs(lit)]) continue;
+                    int sign = (pick(1, 2) == 1) ? 1 : -1;
+                    lit *= sign;
+                }
+                used[std::abs(lit)] = 1;
+                output << lit << " ";
+            }
+            output << "0\n";
+            used.assign(m+1, 0);
+        }
+    }
+
+    return output.str();
+
+}
+
 std::string generate_trash_cnf()
 {
-    std::string correct = generate_correct_cnf();
+    std::string correct = generate_simple_correct_cnf();
     int num_changes = rand() % correct.size();
     // int choose_case = rand() % 10 + 1;
     int choose_case = CURRENT_COUNTER % 10 + 1;
@@ -323,8 +411,6 @@ void save_to_file(const char *raw_error_output, long CurrentInput)
     std::string name = "fuzzed-tests/test_error_" + std::to_string(CurrentInput) + ".txt";
     std::string grep_content = "";
     std::ofstream error_file(name);
-    FilesCopiedMutex.lock();
-    ErrorsMutex.lock();
     for (size_t j = 0; j < REGEX_ERRORS; j++)
     {
 
@@ -412,8 +498,6 @@ void save_to_file(const char *raw_error_output, long CurrentInput)
     printf("----------------------------------------------------\n");
 
     error_file.close();
-    ErrorsMutex.unlock();
-    FilesCopiedMutex.unlock();
 }
 
 void execute(subprocess::Popen &SUTProcess, long CurrentInput)
@@ -425,12 +509,12 @@ void execute(subprocess::Popen &SUTProcess, long CurrentInput)
     {
         std::cerr << "SAT killed timeout reached -> ERROR: Infinite LOOP\n";
         SUTProcess.kill(15);
-        save_to_file("SAT killed timeout reached -> ERROR: Infinite LOOP\n", CurrentInput);
+        saveToFileQueue.push({"SAT killed timeout reached -> ERROR: Infinite LOOP\n", CurrentInput});
     }
     else if (SUTProcess.retcode() != 0)
     {
         auto output = SUTProcess.communicate();
-        save_to_file(output.second.buf.data(), CurrentInput);
+        saveToFileQueue.push({output.second.buf.data(), CurrentInput});
     }
 }
 
@@ -503,9 +587,4 @@ void run_one_time_edge_cases(std::string SATPath)
     }
     CURRENT_COUNTER = INPUT_COUNTER;
 
-    // std::string InputPath = "inputs/WRONG_NAME.cnf";
-    // auto SUTProcess = subprocess::Popen({SATPath, InputPath}, subprocess::output(subprocess::PIPE), subprocess::error(subprocess::PIPE));
-    // execute(SUTProcess);
-    // INPUT_COUNTER += 1;
-    // CURRENT_COUNTER = INPUT_COUNTER;
 }
