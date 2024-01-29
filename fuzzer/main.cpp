@@ -7,11 +7,25 @@ int FilesCopied = 0;
 
 std::mutex InputCounterMutex;
 std::mutex CurrentCounterMutex;
-
-ThreadSafeQueue<SaveToFileParams> saveToFileQueue;
+std::mutex FilesCopiedMutex;
+std::mutex ErrorsMutex;
 
 int main(int argc, char *argv[])
 {
+    // try
+    // {
+    //     // you can pass http::InternetProtocol::V6 to Request to make an IPv6 request
+    //     http::Request request{"http://172.167.164.98/"};
+
+    //     // send a get request
+    //     const auto response = request.send("GET");
+    //     std::cout << std::string{response.body.begin(), response.body.end()} << '\n'; // print the result
+    // }
+    // catch (const std::exception &e)
+    // {
+    //     std::cerr << "Request failed, error: " << e.what() << '\n';
+    // }
+
     std::string SATPath = argv[1];
     int seed = atoi(argv[2]);
     srand(seed);
@@ -21,23 +35,13 @@ int main(int argc, char *argv[])
 
     // generate input
     std::thread InputGenerationThread(generate_cnf_files);
-    std::thread OutputProcessingThread(process_output);
     std::thread FuzzingThread1(fuzz, SATPath);
     std::thread FuzzingThread2(fuzz, SATPath);
     fuzz(SATPath);
 
     FuzzingThread1.join();
     FuzzingThread2.join();
-    OutputProcessingThread.join();
     InputGenerationThread.join();
-}
-
-void process_output()
-{
-    while(true){
-        SaveToFileParams params = saveToFileQueue.pop();
-        save_to_file(params.raw_error_output, params.CurrentInput);
-    }
 }
 
 void fuzz(std::string SATPath){
@@ -65,37 +69,20 @@ void fuzz(std::string SATPath){
 
 void generate_cnf_files()
 {
-    int InputChoice;
     while(true){
-        InputChoice = rand() % 101;
-        if (InputChoice < 10)
-            generate_complex_correct_cnf_files();
-        else if (InputChoice < 30)
-            generate_simple_correct_cnf_files();
+        if (rand() % 101 < 30)
+            generate_correct_cnf_files();
         else
             generate_trash_cnf_files();
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 }
 
-void generate_complex_correct_cnf_files()
+void generate_correct_cnf_files()
 {
     std::string name = "inputs/AUTOGEN_" + std::to_string(INPUT_COUNTER) + ".cnf";
     std::ofstream file(name);
 
-    file << generate_complex_correct_cnf() << "\n";
-    file.close();
-    InputCounterMutex.lock();
-    INPUT_COUNTER++;
-    InputCounterMutex.unlock();
-}
-
-void generate_simple_correct_cnf_files()
-{
-    std::string name = "inputs/AUTOGEN_" + std::to_string(INPUT_COUNTER) + ".cnf";
-    std::ofstream file(name);
-
-    file << generate_simple_correct_cnf() << "\n";
+    file << generate_correct_cnf() << "\n";
     file.close();
     InputCounterMutex.lock();
     INPUT_COUNTER++;
@@ -157,11 +144,11 @@ int pick(int from, int to) {
     return (std::rand() % (to - from + 1)) + from;
 }
 
-std::string generate_complex_correct_cnf()
+std::string generate_correct_cnf()
 {
     std::stringstream output;
-    int max_width = pick(10, 70);
-    int nlayers = pick(1, 20);
+    int max_width = pick(10, 100);
+    int nlayers = pick(1, 100);
     std::vector<std::vector<int>> unused(nlayers);
     std::vector<int> width(nlayers), low(nlayers), high(nlayers), clauses(nlayers), nunused(nlayers);
 
@@ -409,6 +396,8 @@ void save_to_file(const char *raw_error_output, long CurrentInput)
     std::string name = "fuzzed-tests/test_error_" + std::to_string(CurrentInput) + ".txt";
     std::string grep_content = "";
     std::ofstream error_file(name);
+    FilesCopiedMutex.lock();
+    ErrorsMutex.lock();
     for (size_t j = 0; j < REGEX_ERRORS; j++)
     {
 
@@ -496,6 +485,8 @@ void save_to_file(const char *raw_error_output, long CurrentInput)
     printf("----------------------------------------------------\n");
 
     error_file.close();
+    ErrorsMutex.unlock();
+    FilesCopiedMutex.unlock();
 }
 
 void execute(subprocess::Popen &SUTProcess, long CurrentInput)
@@ -507,12 +498,12 @@ void execute(subprocess::Popen &SUTProcess, long CurrentInput)
     {
         std::cerr << "SAT killed timeout reached -> ERROR: Infinite LOOP\n";
         SUTProcess.kill(15);
-        saveToFileQueue.push({"SAT killed timeout reached -> ERROR: Infinite LOOP\n", CurrentInput});
+        save_to_file("SAT killed timeout reached -> ERROR: Infinite LOOP\n", CurrentInput);
     }
     else if (SUTProcess.retcode() != 0)
     {
         auto output = SUTProcess.communicate();
-        saveToFileQueue.push({output.second.buf.data(), CurrentInput});
+        save_to_file(output.second.buf.data(), CurrentInput);
     }
 }
 
@@ -585,4 +576,9 @@ void run_one_time_edge_cases(std::string SATPath)
     }
     CURRENT_COUNTER = INPUT_COUNTER;
 
+    // std::string InputPath = "inputs/WRONG_NAME.cnf";
+    // auto SUTProcess = subprocess::Popen({SATPath, InputPath}, subprocess::output(subprocess::PIPE), subprocess::error(subprocess::PIPE));
+    // execute(SUTProcess);
+    // INPUT_COUNTER += 1;
+    // CURRENT_COUNTER = INPUT_COUNTER;
 }

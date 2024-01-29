@@ -7,9 +7,6 @@
 #include <climits>
 #include <vector>
 #include <regex>
-#include <queue>
-#include <mutex>
-#include <condition_variable>
 #include <map>
 #include "subprocess.hpp"
 #include "HTTPRequest.hpp"
@@ -30,15 +27,12 @@ void execute(subprocess::Popen &SUTProcess, long CurrentInput);
 void set_edge_cases();
 void run_one_time_edge_cases(std::string SATPath);
 void generate_cnf_files();
-void generate_complex_correct_cnf_files();
-void generate_simple_correct_cnf_files();
+void generate_correct_cnf_files();
 void generate_trash_cnf_files();
-std::string generate_complex_correct_cnf();
-std::string generate_simple_correct_cnf();
+std::string generate_correct_cnf();
 std::string generate_trash_cnf();
 void fuzz(std::string SATPath);
-void save_to_file(const char *raw_error_output, long CurrentInput);
-void process_output();
+
 
 enum ErrorType {
     INTMIN_NEGATED,
@@ -91,31 +85,3 @@ struct GrepReturn
     bool isEmpty;
 };
 
-
-template <typename T>
-class ThreadSafeQueue {
-private:
-    std::queue<T> queue_;
-    std::mutex mutex_;
-    std::condition_variable cond_;
-
-public:
-    void push(T value) {
-        std::lock_guard<std::mutex> lock(mutex_);
-        queue_.push(std::move(value));
-        cond_.notify_one();
-    }
-
-    T pop() {
-        std::unique_lock<std::mutex> lock(mutex_);
-        cond_.wait(lock, [this]{ return !queue_.empty(); });
-        T value = std::move(queue_.front());
-        queue_.pop();
-        return value;
-    }
-};
-
-struct SaveToFileParams {
-    const char *raw_error_output;
-    long CurrentInput;
-};
