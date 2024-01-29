@@ -101,45 +101,122 @@ void generate_trash_cnf_files()
     InputCounterMutex.unlock();
 }
 
+// std::string generate_correct_cnf()
+// {
+//     int num_vars = 0;
+//     int num_clauses = 0;
+//     int randomChance = (rand() % (101));
+//     std::stringstream ss_cnf;
+//     if (randomChance < 0)
+//     {
+//         num_vars = (rand() % (1000 - 500)) + 500;
+//         num_clauses = (rand() % (1000 - 500)) + 500;
+//     }
+//     else if (randomChance < 50)
+//     {
+//         num_vars = rand() % 400 + 1;
+//         num_clauses = rand() % 400 + 1;
+//     }
+//     else
+//     {
+//         num_vars = rand() % 40 + 1;
+//         num_clauses = rand() % 40 + 1;
+//     }
+//     ss_cnf << "p cnf " << num_vars << " " << num_clauses << "\n";
+//     for (int i = 0; i < num_clauses; ++i)
+//     {
+//         int num_literals = rand() % num_vars + 1;
+//         for (int j = 0; j < num_literals; ++j)
+//         {
+//             int literal = rand() % num_vars + 1;
+//             if (rand() % 2)
+//             {
+//                 literal = -literal;
+//             }
+//             ss_cnf << literal << " ";
+//         }
+//         ss_cnf << "0\n";
+//     }
+//     return ss_cnf.str();
+// }
+
+int pick(int from, int to) {
+    return (std::rand() % (to - from + 1)) + from;
+}
+
 std::string generate_correct_cnf()
 {
-    int num_vars = 0;
-    int num_clauses = 0;
-    int randomChance = (rand() % (101));
-    std::stringstream ss_cnf;
 
-    if (randomChance < 0)
-    {
-        num_vars = (rand() % (1000 - 500)) + 500;
-        num_clauses = (rand() % (1000 - 500)) + 500;
-    }
-    else if (randomChance < 50)
-    {
-        num_vars = rand() % 400 + 1;
-        num_clauses = rand() % 400 + 1;
-    }
-    else
-    {
-        num_vars = rand() % 40 + 1;
-        num_clauses = rand() % 40 + 1;
-    }
+    std::vector<int> clause(101);
+    std::stringstream output;
+    int max_width = pick(10, 100);
+    int nlayers = pick(1, 100);
+    std::vector<std::vector<int>> unused(nlayers);
+    std::vector<int> width(nlayers), low(nlayers), high(nlayers), clauses(nlayers), nunused(nlayers);
 
-    ss_cnf << "p cnf " << num_vars << " " << num_clauses << "\n";
-    for (int i = 0; i < num_clauses; ++i)
-    {
-        int num_literals = rand() % num_vars + 1;
-        for (int j = 0; j < num_literals; ++j)
-        {
-            int literal = rand() % num_vars + 1;
-            if (rand() % 2)
-            {
-                literal = -literal;
-            }
-            ss_cnf << literal << " ";
+    for (int i = 0; i < nlayers; i++) {
+        width[i] = pick(10, max_width);
+        low[i] = i ? high[i - 1] + 1 : 1;
+        high[i] = low[i] + width[i] - 1;
+        int m = width[i];
+        if (i) m += width[i - 1];
+        int n = (pick(300, 450) * m) / 100;
+        clauses[i] = n;
+
+        nunused[i] = 2 * (high[i] - low[i] + 1);
+        unused[i].resize(nunused[i]);
+        int k = 0;
+        for (int j = low[i]; j <= high[i]; j++){
+            unused[i][k++] = j;
+            unused[i][k++] = -j;
         }
-        ss_cnf << "0\n";
     }
-    return ss_cnf.str();
+
+    int n = 0;
+    int m = high[nlayers - 1];
+    std::vector<bool> used(m+1, 0);
+
+    for (int i = 0; i < nlayers; i++)
+        n += clauses[i];
+
+    output << "p cnf " << m << " " << n << std::endl;
+
+    for (int i = 0; i < nlayers; i++) {
+        for (int j = 0; j < clauses[i]; j++) {
+            int l = 3;
+            while (l < 400 && pick(1, 3) != 1)
+                l++;
+
+            for (int k = 0; k < l; k++) {
+                int layer = i;
+                int lit;
+                while (layer && pick(3, 4) == 3)
+                    layer--;
+                if (nunused[layer] > 0) {
+                    int o = nunused[layer] - 1;
+                    int p = pick(0, o);
+                    lit = unused[layer][p];
+                    if (used[std::abs(lit)]) continue;
+                    nunused[layer] = o;
+                    if (p != o) unused[layer][p] = unused[layer][o];
+                } else {
+                    lit = pick(low[layer], high[layer]);
+                    if (used[std::abs(lit)]) continue;
+                    int sign = (pick(31, 32) == 31) ? 1 : -1;
+                    lit *= sign;
+                }
+                clause[k] = lit;
+                used[std::abs(lit)] = 1;
+                output << lit << " ";
+            }
+            output << "0\n";
+            for (int k = 0; k < l; k++)
+                used[std::abs(clause[k])] = 0;
+        }
+    }
+
+    return output.str();
+
 }
 
 std::string generate_trash_cnf()
