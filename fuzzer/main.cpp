@@ -12,20 +12,6 @@ std::mutex ErrorsMutex;
 
 int main(int argc, char *argv[])
 {
-    // try
-    // {
-    //     // you can pass http::InternetProtocol::V6 to Request to make an IPv6 request
-    //     http::Request request{"http://172.167.164.98/"};
-
-    //     // send a get request
-    //     const auto response = request.send("GET");
-    //     std::cout << std::string{response.body.begin(), response.body.end()} << '\n'; // print the result
-    // }
-    // catch (const std::exception &e)
-    // {
-    //     std::cerr << "Request failed, error: " << e.what() << '\n';
-    // }
-
     std::string SATPath = argv[1];
     int seed = atoi(argv[2]);
     srand(seed);
@@ -69,20 +55,38 @@ void fuzz(std::string SATPath){
 
 void generate_cnf_files()
 {
+    int InputChoice;
     while(true){
-        if (rand() % 101 < 30)
-            generate_correct_cnf_files();
+        InputChoice = rand() % 101;
+        if (InputChoice < 10)
+            generate_complex_correct_cnf_files();
+        else if (InputChoice < 30)
+            generate_simple_correct_cnf_files();
         else
             generate_trash_cnf_files();
+        std::this_thread::sleep_for(std::chrono::milliseconds(30));
     }
 }
 
-void generate_correct_cnf_files()
+void generate_complex_correct_cnf_files()
 {
-    std::string name = "inputs/AUTOGEN_" + std::to_string(INPUT_COUNTER) + ".cnf";
+    InputCounterMutex.lock();
+    std::string name = "inputs/AUTOGEN_" + std::to_string(INPUT_COUNTER++) + ".cnf";
+    InputCounterMutex.unlock();
     std::ofstream file(name);
 
-    file << generate_correct_cnf() << "\n";
+    file << generate_complex_correct_cnf() << "\n";
+    file.close();
+}
+
+void generate_simple_correct_cnf_files()
+{
+    InputCounterMutex.lock();
+    std::string name = "inputs/AUTOGEN_" + std::to_string(INPUT_COUNTER++) + ".cnf";
+    InputCounterMutex.unlock();
+    std::ofstream file(name);
+
+    file << generate_simple_correct_cnf() << "\n";
     file.close();
     InputCounterMutex.lock();
     INPUT_COUNTER++;
@@ -144,7 +148,7 @@ int pick(int from, int to) {
     return (std::rand() % (to - from + 1)) + from;
 }
 
-std::string generate_correct_cnf()
+std::string generate_complex_correct_cnf()
 {
     std::stringstream output;
     int max_width = pick(10, 100);

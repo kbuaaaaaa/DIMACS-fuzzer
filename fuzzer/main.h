@@ -27,9 +27,11 @@ void execute(subprocess::Popen &SUTProcess, long CurrentInput);
 void set_edge_cases();
 void run_one_time_edge_cases(std::string SATPath);
 void generate_cnf_files();
-void generate_correct_cnf_files();
+void generate_complex_correct_cnf_files();
+void generate_simple_correct_cnf_files();
 void generate_trash_cnf_files();
-std::string generate_correct_cnf();
+std::string generate_complex_correct_cnf();
+std::string generate_simple_correct_cnf();
 std::string generate_trash_cnf();
 void fuzz(std::string SATPath);
 
