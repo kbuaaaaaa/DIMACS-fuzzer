@@ -101,44 +101,44 @@ void generate_trash_cnf_files()
     InputCounterMutex.unlock();
 }
 
-// std::string generate_correct_cnf()
-// {
-//     int num_vars = 0;
-//     int num_clauses = 0;
-//     int randomChance = (rand() % (101));
-//     std::stringstream ss_cnf;
-//     if (randomChance < 0)
-//     {
-//         num_vars = (rand() % (1000 - 500)) + 500;
-//         num_clauses = (rand() % (1000 - 500)) + 500;
-//     }
-//     else if (randomChance < 50)
-//     {
-//         num_vars = rand() % 400 + 1;
-//         num_clauses = rand() % 400 + 1;
-//     }
-//     else
-//     {
-//         num_vars = rand() % 40 + 1;
-//         num_clauses = rand() % 40 + 1;
-//     }
-//     ss_cnf << "p cnf " << num_vars << " " << num_clauses << "\n";
-//     for (int i = 0; i < num_clauses; ++i)
-//     {
-//         int num_literals = rand() % num_vars + 1;
-//         for (int j = 0; j < num_literals; ++j)
-//         {
-//             int literal = rand() % num_vars + 1;
-//             if (rand() % 2)
-//             {
-//                 literal = -literal;
-//             }
-//             ss_cnf << literal << " ";
-//         }
-//         ss_cnf << "0\n";
-//     }
-//     return ss_cnf.str();
-// }
+std::string generate_simple_correct_cnf()
+{
+    int num_vars = 0;
+    int num_clauses = 0;
+    int randomChance = (rand() % (101));
+    std::stringstream ss_cnf;
+    if (randomChance < 0)
+    {
+        num_vars = (rand() % (1000 - 500)) + 500;
+        num_clauses = (rand() % (1000 - 500)) + 500;
+    }
+    else if (randomChance < 50)
+    {
+        num_vars = rand() % 400 + 1;
+        num_clauses = rand() % 400 + 1;
+    }
+    else
+    {
+        num_vars = rand() % 40 + 1;
+        num_clauses = rand() % 40 + 1;
+    }
+    ss_cnf << "p cnf " << num_vars << " " << num_clauses << "\n";
+    for (int i = 0; i < num_clauses; ++i)
+    {
+        int num_literals = rand() % num_vars + 1;
+        for (int j = 0; j < num_literals; ++j)
+        {
+            int literal = rand() % num_vars + 1;
+            if (rand() % 2)
+            {
+                literal = -literal;
+            }
+            ss_cnf << literal << " ";
+        }
+        ss_cnf << "0\n";
+    }
+    return ss_cnf.str();
+}
 
 int pick(int from, int to) {
     return (std::rand() % (to - from + 1)) + from;
@@ -146,8 +146,6 @@ int pick(int from, int to) {
 
 std::string generate_correct_cnf()
 {
-
-    std::vector<int> clause(101);
     std::stringstream output;
     int max_width = pick(10, 100);
     int nlayers = pick(1, 100);
@@ -184,7 +182,7 @@ std::string generate_correct_cnf()
     for (int i = 0; i < nlayers; i++) {
         for (int j = 0; j < clauses[i]; j++) {
             int l = 3;
-            while (l < 400 && pick(1, 3) != 1)
+            while (l < 100 && pick(1, 3) != 1)
                 l++;
 
             for (int k = 0; k < l; k++) {
@@ -202,16 +200,14 @@ std::string generate_correct_cnf()
                 } else {
                     lit = pick(low[layer], high[layer]);
                     if (used[std::abs(lit)]) continue;
-                    int sign = (pick(31, 32) == 31) ? 1 : -1;
+                    int sign = (pick(1, 2) == 1) ? 1 : -1;
                     lit *= sign;
                 }
-                clause[k] = lit;
                 used[std::abs(lit)] = 1;
                 output << lit << " ";
             }
             output << "0\n";
-            for (int k = 0; k < l; k++)
-                used[std::abs(clause[k])] = 0;
+            used.assign(m+1, 0);
         }
     }
 
@@ -221,7 +217,7 @@ std::string generate_correct_cnf()
 
 std::string generate_trash_cnf()
 {
-    std::string correct = generate_correct_cnf();
+    std::string correct = generate_simple_correct_cnf();
     int num_changes = rand() % correct.size();
     // int choose_case = rand() % 10 + 1;
     int choose_case = CURRENT_COUNTER % 10 + 1;
