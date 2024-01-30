@@ -32,8 +32,10 @@ int main(int argc, char *argv[])
     InputGenerationThread.join();
 }
 
-void fuzz(std::string SATPath){
-    while(true){
+void fuzz(std::string SATPath)
+{
+    while (true)
+    {
         InputCounterMutex.lock();
         long MaxInput = INPUT_COUNTER;
         InputCounterMutex.unlock();
@@ -41,7 +43,8 @@ void fuzz(std::string SATPath){
         long CurrentInput = CURRENT_COUNTER;
         CurrentCounterMutex.unlock();
         // There is a chance this is vulnerable to race condition
-        while (CurrentInput < MaxInput){
+        while (CurrentInput < MaxInput)
+        {
             CurrentCounterMutex.lock();
             CurrentInput = CURRENT_COUNTER++;
             CurrentCounterMutex.unlock();
@@ -58,7 +61,8 @@ void fuzz(std::string SATPath){
 void generate_cnf_files()
 {
     int InputChoice;
-    while(true){
+    while (true)
+    {
         InputChoice = rand() % 101;
         if (InputChoice < 10)
             generate_complex_correct_cnf_files();
@@ -146,7 +150,8 @@ std::string generate_simple_correct_cnf()
     return ss_cnf.str();
 }
 
-int pick(int from, int to) {
+int pick(int from, int to)
+{
     return (std::rand() % (to - from + 1)) + from;
 }
 
@@ -158,19 +163,22 @@ std::string generate_complex_correct_cnf()
     std::vector<std::vector<int>> unused(nlayers);
     std::vector<int> width(nlayers), low(nlayers), high(nlayers), clauses(nlayers), nunused(nlayers);
 
-    for (int i = 0; i < nlayers; i++) {
+    for (int i = 0; i < nlayers; i++)
+    {
         width[i] = pick(10, max_width);
         low[i] = i ? high[i - 1] + 1 : 1;
         high[i] = low[i] + width[i] - 1;
         int m = width[i];
-        if (i) m += width[i - 1];
+        if (i)
+            m += width[i - 1];
         int n = (pick(300, 450) * m) / 100;
         clauses[i] = n;
 
         nunused[i] = 2 * (high[i] - low[i] + 1);
         unused[i].resize(nunused[i]);
         int k = 0;
-        for (int j = low[i]; j <= high[i]; j++){
+        for (int j = low[i]; j <= high[i]; j++)
+        {
             unused[i][k++] = j;
             unused[i][k++] = -j;
         }
@@ -178,34 +186,43 @@ std::string generate_complex_correct_cnf()
 
     int n = 0;
     int m = high[nlayers - 1];
-    std::vector<bool> used(m+1, 0);
+    std::vector<bool> used(m + 1, 0);
 
     for (int i = 0; i < nlayers; i++)
         n += clauses[i];
 
     output << "p cnf " << m << " " << n << std::endl;
 
-    for (int i = 0; i < nlayers; i++) {
-        for (int j = 0; j < clauses[i]; j++) {
+    for (int i = 0; i < nlayers; i++)
+    {
+        for (int j = 0; j < clauses[i]; j++)
+        {
             int l = 3;
             while (l < 100 && pick(1, 3) != 1)
                 l++;
 
-            for (int k = 0; k < l; k++) {
+            for (int k = 0; k < l; k++)
+            {
                 int layer = i;
                 int lit;
                 while (layer && pick(3, 4) == 3)
                     layer--;
-                if (nunused[layer] > 0) {
+                if (nunused[layer] > 0)
+                {
                     int o = nunused[layer] - 1;
                     int p = pick(0, o);
                     lit = unused[layer][p];
-                    if (used[std::abs(lit)]) continue;
+                    if (used[std::abs(lit)])
+                        continue;
                     nunused[layer] = o;
-                    if (p != o) unused[layer][p] = unused[layer][o];
-                } else {
+                    if (p != o)
+                        unused[layer][p] = unused[layer][o];
+                }
+                else
+                {
                     lit = pick(low[layer], high[layer]);
-                    if (used[std::abs(lit)]) continue;
+                    if (used[std::abs(lit)])
+                        continue;
                     int sign = (pick(1, 2) == 1) ? 1 : -1;
                     lit *= sign;
                 }
@@ -213,17 +230,25 @@ std::string generate_complex_correct_cnf()
                 output << lit << " ";
             }
             output << "0\n";
-            used.assign(m+1, 0);
+            used.assign(m + 1, 0);
         }
     }
 
     return output.str();
-
 }
 
 std::string generate_trash_cnf()
 {
-    std::string correct = generate_simple_correct_cnf();
+    std::string correct;
+    if (pick(0, 100) < 20)
+    {
+        correct = generate_complex_correct_cnf();
+    }
+    else
+    {
+        correct = generate_simple_correct_cnf();
+    }
+
     int num_changes = rand() % correct.size();
     // int choose_case = rand() % 10 + 1;
     int choose_case = CURRENT_COUNTER % 10 + 1;
@@ -401,7 +426,7 @@ void save_to_file(const char *raw_error_output, long CurrentInput)
     // ASYNC WRITE HERE
     std::string name = "fuzzed-tests/test_error_" + std::to_string(CurrentInput) + ".txt";
     std::string grep_content = "";
-    std::ofstream error_file(name);
+    // std::ofstream error_file(name);
     FilesCopiedMutex.lock();
     ErrorsMutex.lock();
     for (size_t j = 0; j < REGEX_ERRORS; j++)
@@ -461,8 +486,8 @@ void save_to_file(const char *raw_error_output, long CurrentInput)
 
     if (grep_content != "")
     {
-        error_file << grep_content << "\n";
-        error_file << raw_error_output << "\n";
+        // error_file << grep_content << "\n";
+        // error_file << raw_error_output << "\n";
 
         std::string command = "cp inputs/AUTOGEN_" + std::to_string(CurrentInput) + ".cnf fuzzed-tests/AUTOGEN_" + std::to_string(CurrentInput) + ".cnf";
 
@@ -475,7 +500,6 @@ void save_to_file(const char *raw_error_output, long CurrentInput)
         {
             std::cerr << "File copy failed. " << command.c_str() << std::endl;
         }
-    
     }
 
     printf("----------------------------------------------------\n");
@@ -490,7 +514,7 @@ void save_to_file(const char *raw_error_output, long CurrentInput)
     }
     printf("----------------------------------------------------\n");
 
-    error_file.close();
+    // error_file.close();
     ErrorsMutex.unlock();
     FilesCopiedMutex.unlock();
 }
