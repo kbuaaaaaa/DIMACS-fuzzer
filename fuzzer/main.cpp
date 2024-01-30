@@ -23,10 +23,12 @@ int main(int argc, char *argv[])
     std::thread InputGenerationThread(generate_cnf_files);
     std::thread FuzzingThread1(fuzz, SATPath);
     std::thread FuzzingThread2(fuzz, SATPath);
+    std::thread FuzzingThread3(fuzz, SATPath);
     fuzz(SATPath);
 
     FuzzingThread1.join();
     FuzzingThread2.join();
+    FuzzingThread3.join();
     InputGenerationThread.join();
 }
 
