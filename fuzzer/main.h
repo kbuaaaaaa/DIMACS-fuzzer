@@ -12,7 +12,6 @@
 #include <condition_variable>
 #include <map>
 #include "subprocess.hpp"
-#include "HTTPRequest.hpp"
 
 
 std::string OVERFLOW_LITERAL = std::to_string(LLONG_MAX + 1);
