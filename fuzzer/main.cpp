@@ -423,7 +423,7 @@ std::string generate_trash_cnf(long counter)
 GrepReturn grep_output(const std::string &output, const std::string &pattern)
 {
     std::string cmd = "echo \"" + output + "\" | grep -E \"" + pattern + "\"";
-    std::array<char, 128> buffer;
+    std::array<char, 10500> buffer;
     std::string result;
     std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd.c_str(), "r"), pclose);
 
@@ -443,8 +443,9 @@ GrepReturn grep_output(const std::string &output, const std::string &pattern)
 void save_to_file(const char *raw_error_output, long CurrentInput)
 {
     // ASYNC WRITE HERE
-    std::string name = "fuzzed-tests/test_error_" + std::to_string(CurrentInput) + ".txt";
     std::string grep_content = "";
+    // std::string name = "fuzzed-tests/test_error_" + std::to_string(CurrentInput) + ".txt";
+    // std::ofstream error_file(name);
 
     for (size_t j = 0; j < REGEX_ERRORS; j++)
     {
@@ -474,7 +475,7 @@ void save_to_file(const char *raw_error_output, long CurrentInput)
                     bool tempUnique = false;
                     for (int r = 0; r < REGEX_ERRORS; r++)
                     {
-                        if (errorInVector(r, removedFile) && Errors[r].filename.size()<=1)
+                        if (errorInVector(r, removedFile) && Errors[r].filename.size() <= 1)
                         {
                             tempUnique = true;
                         }
@@ -500,12 +501,12 @@ void save_to_file(const char *raw_error_output, long CurrentInput)
                     }
 
                     FilesCopied--;
-                    std::cout << "File removed successfully. " << command.c_str() << std::endl;
+                    // std::cout << "File removed successfully. " << command.c_str() << std::endl;
                 }
-                else
-                {
-                    std::cerr << "File remove failed. " << command.c_str() << std::endl;
-                }
+                // else
+                // {
+                //     std::cerr << "File remove failed. " << command.c_str() << std::endl;
+                // }
             }
 
             grep_content += res.result + "\n";
@@ -515,31 +516,46 @@ void save_to_file(const char *raw_error_output, long CurrentInput)
 
     if (grep_content != "")
     {
-
-        std::string command = "cp inputs/AUTOGEN_" + std::to_string(CurrentInput) + ".cnf fuzzed-tests/AUTOGEN_" + std::to_string(CurrentInput) + ".cnf";
+        // error_file << grep_content << "\n";
+        // error_file << raw_error_output << "\n";
+        std::string command = "mv inputs/AUTOGEN_" + std::to_string(CurrentInput) + ".cnf fuzzed-tests/AUTOGEN_" + std::to_string(CurrentInput) + ".cnf";
 
         if (std::system(command.c_str()) == 0)
         {
             FilesCopied++;
-            std::cout << "File copied successfully. " << command.c_str() << std::endl;
+            // std::cout << "File moved successfully. " << command.c_str() << std::endl;
         }
-        else
-        {
-            std::cerr << "File copy failed. " << command.c_str() << std::endl;
-        }
+        // else
+        // {
+        //     std::cerr << "File moved failed. " << command.c_str() << std::endl;
+        // }
     }
-
-    printf("----------------------------------------------------\n");
-
-    for (int k = 0; k < REGEX_ERRORS; k++)
+    else
     {
-        printf("Error: %d   Appeared: %lu times\n", k, Errors[k].filename.size());
-        for (int l = 0; l < Errors[k].filename.size(); l++)
-        {
-            printf("File: %s\n", Errors[k].filename[l].c_str());
-        }
+        std::string command = "rm inputs/AUTOGEN_" + std::to_string(CurrentInput) + ".cnf";
+        
+        if (std::system(command.c_str()) == 0);
+        // {
+            // std::cout << "SUCCESS: File rm successfully. " << command.c_str() << std::endl;
+            //std::cout << "The grep content is|" << grep_content << "| Fish grep" << std::endl;
+        // } else {
+            // std::cout << "ERROR: File not rm successfully. " << command.c_str() << std::endl;
+            // std::cout << "The grep content is|" << grep_content << "| Fish grep" << std::endl;
+        // }
     }
-    printf("----------------------------------------------------\n");
+
+    // printf("----------------------------------------------------\n");
+
+    // for (int k = 0; k < REGEX_ERRORS; k++)
+    // {
+    //     printf("Error: %d   Appeared: %lu times\n", k, Errors[k].filename.size());
+    //     for (int l = 0; l < Errors[k].filename.size(); l++)
+    //     {
+    //         printf("File: %s\n", Errors[k].filename[l].c_str());
+    //     }
+    // }
+    // printf("----------------------------------------------------\n");
+    // error_file.close();
 }
 
 bool errorInVector(int errorIndex, std::string &s)
@@ -561,7 +577,7 @@ void execute(subprocess::Popen &SUTProcess, long CurrentInput)
 
     if (future.wait_for(std::chrono::seconds(15)) == std::future_status::timeout)
     {
-        std::cerr << "SAT killed timeout reached -> ERROR: Infinite LOOP\n";
+        //std::cerr << "SAT killed timeout reached -> ERROR: Infinite LOOP\n";
         SUTProcess.kill(15);
         saveToFileQueue.push({"SAT killed timeout reached -> ERROR: Infinite LOOP\n", CurrentInput});
     }
