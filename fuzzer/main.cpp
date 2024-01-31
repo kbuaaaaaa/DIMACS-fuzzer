@@ -88,9 +88,6 @@ void generate_simple_correct_cnf_files()
 
     file << generate_simple_correct_cnf() << "\n";
     file.close();
-    InputCounterMutex.lock();
-    INPUT_COUNTER++;
-    InputCounterMutex.unlock();
 }
 
 void generate_trash_cnf_files()
