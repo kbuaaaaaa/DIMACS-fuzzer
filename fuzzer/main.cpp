@@ -97,23 +97,19 @@ void generate_simple_correct_cnf_files()
 
     file << generate_simple_correct_cnf() << "\n";
     file.close();
-    InputCounterMutex.lock();
-    INPUT_COUNTER++;
-    InputCounterMutex.unlock();
+
 }
 
 void generate_trash_cnf_files()
 {
     InputCounterMutex.lock();
-    std::string name = "inputs/AUTOGEN_" + std::to_string(INPUT_COUNTER++) + ".cnf";
+    long counter = INPUT_COUNTER++;
     InputCounterMutex.unlock();
+    std::string name = "inputs/AUTOGEN_" + std::to_string(counter) + ".cnf";
     std::ofstream file(name);
 
-    file << generate_trash_cnf() << "\n";
+    file << generate_trash_cnf(counter) << "\n";
     file.close();
-    InputCounterMutex.lock();
-    INPUT_COUNTER++;
-    InputCounterMutex.unlock();
 }
 
 std::string generate_simple_correct_cnf()
@@ -230,7 +226,7 @@ std::string generate_complex_correct_cnf()
 
 }
 
-std::string generate_trash_cnf()
+std::string generate_trash_cnf(long counter)
 {
     std::string correct = generate_simple_correct_cnf();
     int num_changes = rand() % correct.size();

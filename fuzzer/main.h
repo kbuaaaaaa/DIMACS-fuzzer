@@ -35,7 +35,7 @@ void generate_simple_correct_cnf_files();
 void generate_trash_cnf_files();
 std::string generate_complex_correct_cnf();
 std::string generate_simple_correct_cnf();
-std::string generate_trash_cnf();
+std::string generate_trash_cnf(long counter);
 void fuzz(std::string SATPath);
 void save_to_file(const char *raw_error_output, long CurrentInput);
 void process_output();
