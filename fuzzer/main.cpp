@@ -33,14 +33,17 @@ int main(int argc, char *argv[])
 
 void process_output()
 {
-    while(true){
+    while (true)
+    {
         SaveToFileParams params = saveToFileQueue.pop();
         save_to_file(params.raw_error_output, params.CurrentInput);
     }
 }
 
-void fuzz(std::string SATPath){
-    while(true){
+void fuzz(std::string SATPath)
+{
+    while (true)
+    {
         InputCounterMutex.lock();
         CurrentCounterMutex.lock();
         long MaxInput = INPUT_COUNTER;
@@ -48,7 +51,8 @@ void fuzz(std::string SATPath){
         CurrentCounterMutex.unlock();
         InputCounterMutex.unlock();
         // There is a chance this is vulnerable to race condition
-        while (CurrentInput < MaxInput){
+        while (CurrentInput < MaxInput)
+        {
             CurrentCounterMutex.lock();
             CurrentInput = CURRENT_COUNTER++;
             CurrentCounterMutex.unlock();
@@ -65,7 +69,8 @@ void fuzz(std::string SATPath){
 void generate_cnf_files()
 {
     int InputChoice;
-    while(true){
+    while (true)
+    {
         InputChoice = rand() % 101;
         if (InputChoice < 10)
             generate_complex_correct_cnf_files();
@@ -73,7 +78,7 @@ void generate_cnf_files()
             generate_simple_correct_cnf_files();
         else
             generate_trash_cnf_files();
-        std::this_thread::sleep_for(std::chrono::milliseconds(30));
+        std::this_thread::sleep_for(std::chrono::milliseconds(15));
     }
 }
 
@@ -97,7 +102,6 @@ void generate_simple_correct_cnf_files()
 
     file << generate_simple_correct_cnf() << "\n";
     file.close();
-
 }
 
 void generate_trash_cnf_files()
@@ -151,31 +155,50 @@ std::string generate_simple_correct_cnf()
     return ss_cnf.str();
 }
 
-int pick(int from, int to) {
+int pick(int from, int to)
+{
     return (std::rand() % (to - from + 1)) + from;
 }
 
 std::string generate_complex_correct_cnf()
 {
     std::stringstream output;
-    int max_width = pick(10, 70);
-    int nlayers = pick(1, 20);
+
+    int max_width;
+    int nlayers;
+    if (pick(1, 100) < 5)
+    {
+        max_width = pick(10, 70);
+        nlayers = pick(1, 20);
+    }
+    else
+    {
+        max_width = pick(10, 40);
+        nlayers = pick(1, 15);
+    }
     std::vector<std::vector<int>> unused(nlayers);
     std::vector<int> width(nlayers), low(nlayers), high(nlayers), clauses(nlayers), nunused(nlayers);
 
-    for (int i = 0; i < nlayers; i++) {
+    for (int i = 0; i < nlayers; i++)
+    {
         width[i] = pick(10, max_width);
         low[i] = i ? high[i - 1] + 1 : 1;
         high[i] = low[i] + width[i] - 1;
         int m = width[i];
-        if (i) m += width[i - 1];
-        int n = (pick(300, 450) * m) / 100;
+        if (i)
+            m += width[i - 1];
+        int n;
+        if (pick(1, 100) < 20)
+            n = (pick(150, 300) * m) / 100;
+        else
+            n = (pick(75, 150) * m) / 100;
         clauses[i] = n;
 
         nunused[i] = 2 * (high[i] - low[i] + 1);
         unused[i].resize(nunused[i]);
         int k = 0;
-        for (int j = low[i]; j <= high[i]; j++){
+        for (int j = low[i]; j <= high[i]; j++)
+        {
             unused[i][k++] = j;
             unused[i][k++] = -j;
         }
@@ -183,34 +206,43 @@ std::string generate_complex_correct_cnf()
 
     int n = 0;
     int m = high[nlayers - 1];
-    std::vector<bool> used(m+1, 0);
+    std::vector<bool> used(m + 1, 0);
 
     for (int i = 0; i < nlayers; i++)
         n += clauses[i];
 
     output << "p cnf " << m << " " << n << std::endl;
 
-    for (int i = 0; i < nlayers; i++) {
-        for (int j = 0; j < clauses[i]; j++) {
+    for (int i = 0; i < nlayers; i++)
+    {
+        for (int j = 0; j < clauses[i]; j++)
+        {
             int l = 3;
             while (l < 100 && pick(1, 3) != 1)
                 l++;
 
-            for (int k = 0; k < l; k++) {
+            for (int k = 0; k < l; k++)
+            {
                 int layer = i;
                 int lit;
                 while (layer && pick(3, 4) == 3)
                     layer--;
-                if (nunused[layer] > 0) {
+                if (nunused[layer] > 0)
+                {
                     int o = nunused[layer] - 1;
                     int p = pick(0, o);
                     lit = unused[layer][p];
-                    if (used[std::abs(lit)]) continue;
+                    if (used[std::abs(lit)])
+                        continue;
                     nunused[layer] = o;
-                    if (p != o) unused[layer][p] = unused[layer][o];
-                } else {
+                    if (p != o)
+                        unused[layer][p] = unused[layer][o];
+                }
+                else
+                {
                     lit = pick(low[layer], high[layer]);
-                    if (used[std::abs(lit)]) continue;
+                    if (used[std::abs(lit)])
+                        continue;
                     int sign = (pick(1, 2) == 1) ? 1 : -1;
                     lit *= sign;
                 }
@@ -218,12 +250,11 @@ std::string generate_complex_correct_cnf()
                 output << lit << " ";
             }
             output << "0\n";
-            used.assign(m+1, 0);
+            used.assign(m + 1, 0);
         }
     }
 
     return output.str();
-
 }
 
 std::string generate_trash_cnf(long counter)
@@ -435,26 +466,38 @@ void save_to_file(const char *raw_error_output, long CurrentInput)
                     }
                 }
 
-                std::string command = "rm fuzzed-tests/" + maxError->filename.back();
+                bool unique = true;
+                std::string removedFile;
+                while (unique)
+                {
+                    removedFile = maxError->filename.at(pick(0, maxError->filename.size() - 1));
+                    bool tempUnique = false;
+                    for (int r = 0; r < REGEX_ERRORS; r++)
+                    {
+                        if (errorInVector(r, removedFile) && Errors[r].filename.size()<=1)
+                        {
+                            tempUnique = true;
+                        }
+                    }
+                    unique = tempUnique;
+                };
+
+                std::string command = "rm fuzzed-tests/" + removedFile;
 
                 if (std::system(command.c_str()) == 0)
                 {
 
                     for (int e = 0; e < REGEX_ERRORS; e++)
                     {
-                        if (e == currentMax)
-                            continue;
 
                         for (int f = 0; f < Errors[e].filename.size(); f++)
                         {
-                            if (Errors[e].filename[f] == maxError->filename.back())
+                            if (Errors[e].filename[f] == removedFile)
                             {
                                 Errors[e].filename.erase(Errors[e].filename.begin() + f);
                             }
                         }
                     }
-
-                    maxError->filename.pop_back();
 
                     FilesCopied--;
                     std::cout << "File removed successfully. " << command.c_str() << std::endl;
@@ -484,7 +527,6 @@ void save_to_file(const char *raw_error_output, long CurrentInput)
         {
             std::cerr << "File copy failed. " << command.c_str() << std::endl;
         }
-    
     }
 
     printf("----------------------------------------------------\n");
@@ -498,7 +540,18 @@ void save_to_file(const char *raw_error_output, long CurrentInput)
         }
     }
     printf("----------------------------------------------------\n");
+}
 
+bool errorInVector(int errorIndex, std::string &s)
+{
+    for (int i = 0; i < Errors[errorIndex].filename.size(); i++)
+    {
+        if (Errors[errorIndex].filename.at(i) == s)
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 void execute(subprocess::Popen &SUTProcess, long CurrentInput)
@@ -587,5 +640,4 @@ void run_one_time_edge_cases(std::string SATPath)
         execute(SUTProcess, i);
     }
     CURRENT_COUNTER = INPUT_COUNTER;
-
 }

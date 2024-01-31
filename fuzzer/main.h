@@ -39,6 +39,7 @@ std::string generate_trash_cnf(long counter);
 void fuzz(std::string SATPath);
 void save_to_file(const char *raw_error_output, long CurrentInput);
 void process_output();
+bool errorInVector(int errorIndex, std::string &s);
 
 enum ErrorType {
     INTMIN_NEGATED,
