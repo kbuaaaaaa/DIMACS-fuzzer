@@ -410,7 +410,7 @@ void save_to_file(const char *raw_error_output, long CurrentInput)
     // ASYNC WRITE HERE
     std::string name = "fuzzed-tests/test_error_" + std::to_string(CurrentInput) + ".txt";
     std::string grep_content = "";
-    std::ofstream error_file(name);
+
     for (size_t j = 0; j < REGEX_ERRORS; j++)
     {
 
@@ -468,8 +468,6 @@ void save_to_file(const char *raw_error_output, long CurrentInput)
 
     if (grep_content != "")
     {
-        error_file << grep_content << "\n";
-        error_file << raw_error_output << "\n";
 
         std::string command = "cp inputs/AUTOGEN_" + std::to_string(CurrentInput) + ".cnf fuzzed-tests/AUTOGEN_" + std::to_string(CurrentInput) + ".cnf";
 
@@ -497,7 +495,6 @@ void save_to_file(const char *raw_error_output, long CurrentInput)
     }
     printf("----------------------------------------------------\n");
 
-    error_file.close();
 }
 
 void execute(subprocess::Popen &SUTProcess, long CurrentInput)
