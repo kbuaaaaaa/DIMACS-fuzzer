@@ -228,7 +228,15 @@ std::string generate_complex_correct_cnf()
 
 std::string generate_trash_cnf(long counter)
 {
-    std::string correct = generate_simple_correct_cnf();
+    std::string correct;
+    if (pick(0, 100) < 20)
+    {
+        correct = generate_complex_correct_cnf();
+    }
+    else
+    {
+        correct = generate_simple_correct_cnf();
+    }
     int num_changes = rand() % correct.size();
     // int choose_case = rand() % 10 + 1;
     int choose_case = CURRENT_COUNTER % 10 + 1;
