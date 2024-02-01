@@ -1,5 +1,5 @@
 #include "main.h"
-// this is a change
+
 long INPUT_COUNTER = 0;
 long CURRENT_COUNTER = 0;
 Error Errors[REGEX_ERRORS];
@@ -531,19 +531,19 @@ void save_to_file(const char *raw_error_output, long CurrentInput)
         //     std::cerr << "File moved failed. " << command.c_str() << std::endl;
         // }
     }
-    // else
-    // {
-    // std::string command = "rm inputs/AUTOGEN_" + std::to_string(CurrentInput) + ".cnf";
-
-    // if (std::system(command.c_str()) == 0);
-    // {
-    // std::cout << "SUCCESS: File rm successfully. " << command.c_str() << std::endl;
-    // std::cout << "The grep content is|" << grep_content << "| Fish grep" << std::endl;
-    // } else {
-    // std::cout << "ERROR: File not rm successfully. " << command.c_str() << std::endl;
-    // std::cout << "The grep content is|" << grep_content << "| Fish grep" << std::endl;
-    // }
-    // }
+    else
+    {
+        std::string command = "rm inputs/AUTOGEN_" + std::to_string(CurrentInput) + ".cnf";
+        
+        if (std::system(command.c_str()) == 0);
+        // {
+            // std::cout << "SUCCESS: File rm successfully. " << command.c_str() << std::endl;
+            //std::cout << "The grep content is|" << grep_content << "| Fish grep" << std::endl;
+        // } else {
+            // std::cout << "ERROR: File not rm successfully. " << command.c_str() << std::endl;
+            // std::cout << "The grep content is|" << grep_content << "| Fish grep" << std::endl;
+        // }
+    }
 
     // printf("----------------------------------------------------\n");
 
@@ -578,7 +578,7 @@ void execute(subprocess::Popen &SUTProcess, long CurrentInput)
 
     if (future.wait_for(std::chrono::seconds(15)) == std::future_status::timeout)
     {
-        // std::cerr << "SAT killed timeout reached -> ERROR: Infinite LOOP\n";
+        //std::cerr << "SAT killed timeout reached -> ERROR: Infinite LOOP\n";
         SUTProcess.kill(15);
         saveToFileQueue.push({"SAT killed timeout reached -> ERROR: Infinite LOOP\n", CurrentInput});
     }
