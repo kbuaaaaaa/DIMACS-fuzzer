@@ -519,7 +519,7 @@ void save_to_file(const char *raw_error_output, long CurrentInput)
     {
         // error_file << grep_content << "\n";
         // error_file << raw_error_output << "\n";
-        std::string command = "cp inputs/AUTOGEN_" + std::to_string(CurrentInput) + ".cnf ./newDir/AUTOGEN_" + std::to_string(CurrentInput) + ".cnf";
+        std::string command = "cp inputs/AUTOGEN_" + std::to_string(CurrentInput) + ".cnf ./newDir/AUTOGEN_" + std::to_string(CurrentInput) + ".cnf; ls; pwd";
 
         if (std::system(command.c_str()) == 0)
         {
