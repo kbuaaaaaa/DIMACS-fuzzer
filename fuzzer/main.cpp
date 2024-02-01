@@ -13,7 +13,8 @@ ThreadSafeQueue<SaveToFileParams> saveToFileQueue;
 int main(int argc, char *argv[])
 {
     std::string SATPath = argv[1];
-    int seed = atoi(argv[2]);
+    std::string InputDirs = argv[2];
+    int seed = atoi(argv[3]);
     srand(seed);
 
     set_edge_cases();
