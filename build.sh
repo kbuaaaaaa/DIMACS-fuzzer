@@ -2,13 +2,7 @@
 set -x # Display every executed instruction
 set -e # Fail script as soon as instruction fails
 
-# if [ -d fuzzed-tests ]; then
-#     echo "Directory exists"
-#     rm -rf fuzzed-tests
-# fi
 
-rm -rf inputs/AUTOGEN*
-rm -rf fuzzed-tests/AUTOGEN*
 # mkdir fuzzed-tests
 # chmod 777 fuzzed-tests
 # chmod +x solvers/solver1/runsat.sh
@@ -17,13 +11,13 @@ rm -rf fuzzed-tests/AUTOGEN*
 
 g++ ./fuzzer/main.cpp -g -std=c++17 -pthread -O3 -o fuzz-sat
 # chmod +x fuzz-sat
-touch ./fuzzed-tests/Testing.txt
-echo "Testing" > ./fuzzed-tests/Testing.txt
-cat ./fuzzed-tests/Testing.txt
-chmod +x ./fuzzed-tests
+# touch ./fuzzed-tests/Testing.txt
+# echo "Testing" > ./fuzzed-tests/Testing.txt
+# cat ./fuzzed-tests/Testing.txt
+# chmod +x ./fuzzed-tests
 mkdir newDir
 mkdir fuzzed-tests
-# mkdir inputs
+mkdir inputs
 
 # Implement your build script here...
 # You can assume this runs on an environment similar to a lab-machine.
