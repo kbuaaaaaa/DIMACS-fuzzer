@@ -23,7 +23,6 @@ int main(int argc, char *argv[])
     std::string content((std::istreambuf_iterator<char>(ifs)),
                         (std::istreambuf_iterator<char>()));
 
-    std::cout << content << "\n";
     char mydir[2048];
     getcwd(mydir, sizeof(mydir));
     std::string str(mydir);
