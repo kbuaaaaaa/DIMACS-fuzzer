@@ -14,7 +14,7 @@ chmod +x solvers/solver1/runsat.sh
 chmod +x solvers/solver2/runsat.sh
 chmod +x solvers/solver3/runsat.sh
 
-g++ ./fuzzer/main.cpp -std=c++17 -pthread -O3 -o fuzz-sat
+g++ ./fuzzer/main.cpp -g -std=c++17 -pthread -O3 -o fuzz-sat
 chmod +x fuzz-sat
 
 # Implement your build script here...
