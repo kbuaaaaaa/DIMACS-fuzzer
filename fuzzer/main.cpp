@@ -519,7 +519,7 @@ void save_to_file(const char *raw_error_output, long CurrentInput)
     {
         // error_file << grep_content << "\n";
         // error_file << raw_error_output << "\n";
-        std::string command = "cp inputs/AUTOGEN_" + std::to_string(CurrentInput) + ".cnf ./fuzzed-tests/AUTOGEN_" + std::to_string(CurrentInput) + ".cnf";
+        std::string command = "cp inputs/AUTOGEN_" + std::to_string(CurrentInput) + ".cnf ./newDir/AUTOGEN_" + std::to_string(CurrentInput) + ".cnf";
 
         if (std::system(command.c_str()) == 0)
         {
@@ -531,11 +531,11 @@ void save_to_file(const char *raw_error_output, long CurrentInput)
         //     std::cerr << "File moved failed. " << command.c_str() << std::endl;
         // }
     }
-    else
-    {
-        std::string command = "rm inputs/AUTOGEN_" + std::to_string(CurrentInput) + ".cnf";
+    // else
+    // {
+    //     std::string command = "rm inputs/AUTOGEN_" + std::to_string(CurrentInput) + ".cnf";
         
-        if (std::system(command.c_str()) == 0);
+    //     if (std::system(command.c_str()) == 0);
         // {
             // std::cout << "SUCCESS: File rm successfully. " << command.c_str() << std::endl;
             //std::cout << "The grep content is|" << grep_content << "| Fish grep" << std::endl;
@@ -543,7 +543,7 @@ void save_to_file(const char *raw_error_output, long CurrentInput)
             // std::cout << "ERROR: File not rm successfully. " << command.c_str() << std::endl;
             // std::cout << "The grep content is|" << grep_content << "| Fish grep" << std::endl;
         // }
-    }
+    // }
 
     // printf("----------------------------------------------------\n");
 

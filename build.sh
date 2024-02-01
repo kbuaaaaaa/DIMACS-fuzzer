@@ -21,6 +21,7 @@ touch ./fuzzed-tests/Testing.txt
 echo "Testing" > ./fuzzed-tests/Testing.txt
 cat ./fuzzed-tests/Testing.txt
 chmod +x ./fuzzed-tests
+mkdir newDir
 # mkdir inputs
 
 # Implement your build script here...
