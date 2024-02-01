@@ -9,6 +9,9 @@ fi
 
 rm -rf inputs/AUTOGEN*
 mkdir fuzzed-tests
+chmod +x solver/solver1/runsat.sh
+chmod +x solver/solver2/runsat.sh
+chmod +x solver/solver3/runsat.sh
 
 g++ ./fuzzer/main.cpp -std=c++17 -pthread -O3 -o fuzz-sat
 # Implement your build script here...
