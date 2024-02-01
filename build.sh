@@ -9,6 +9,7 @@ fi
 
 rm -rf inputs/AUTOGEN*
 mkdir fuzzed-tests
+mkdir inputs
 chmod +x solvers/solver1/runsat.sh
 chmod +x solvers/solver2/runsat.sh
 chmod +x solvers/solver3/runsat.sh
