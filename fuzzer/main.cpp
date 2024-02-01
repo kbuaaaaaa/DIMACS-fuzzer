@@ -443,7 +443,7 @@ std::string generate_trash_cnf(long counter)
 GrepReturn grep_output(const std::string &output, const std::string &pattern)
 {
     std::string cmd = "echo \"" + output + "\" | grep -E \"" + pattern + "\"";
-    std::array<char, 10500> buffer;
+    std::array<char, 1024> buffer;
     std::string result;
     std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd.c_str(), "r"), pclose);
 
@@ -550,11 +550,11 @@ void save_to_file(const char *raw_error_output, long CurrentInput)
         //     std::cerr << "File moved failed. " << command.c_str() << std::endl;
         // }
     }
-    else
-    {
-        std::string command = "rm inputs/AUTOGEN_" + std::to_string(CurrentInput) + ".cnf";
+    // else
+    // {
+        // std::string command = "rm inputs/AUTOGEN_" + std::to_string(CurrentInput) + ".cnf";
         
-        if (std::system(command.c_str()) == 0);
+        // if (std::system(command.c_str()) == 0);
         // {
             // std::cout << "SUCCESS: File rm successfully. " << command.c_str() << std::endl;
             //std::cout << "The grep content is|" << grep_content << "| Fish grep" << std::endl;
@@ -562,7 +562,7 @@ void save_to_file(const char *raw_error_output, long CurrentInput)
             // std::cout << "ERROR: File not rm successfully. " << command.c_str() << std::endl;
             // std::cout << "The grep content is|" << grep_content << "| Fish grep" << std::endl;
         // }
-    }
+    // }
 
     // printf("----------------------------------------------------\n");
 
