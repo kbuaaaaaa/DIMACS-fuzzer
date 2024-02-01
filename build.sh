@@ -16,6 +16,7 @@ set -e # Fail script as soon as instruction fails
 
 g++ ./fuzzer/main.cpp -g -std=c++17 -pthread -O3 -o fuzz-sat
 chmod +x fuzz-sat
+touch ./fuzzed-tests/Testing.txt
 # mkdir inputs
 
 # Implement your build script here...
