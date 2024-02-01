@@ -12,7 +12,8 @@ ThreadSafeQueue<SaveToFileParams> saveToFileQueue;
 
 int main(int argc, char *argv[])
 {
-    std::string SATPath = argv[1];
+    std::string script = "/runsat.sh";
+    std::string SATPath = argv[1] + script;
     std::string InputDirs = argv[2];
     int seed = atoi(argv[3]);
     srand(seed);
