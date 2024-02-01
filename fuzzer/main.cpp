@@ -1,5 +1,5 @@
 #include "main.h"
-
+// this is a change
 long INPUT_COUNTER = 0;
 long CURRENT_COUNTER = 0;
 Error Errors[REGEX_ERRORS];
