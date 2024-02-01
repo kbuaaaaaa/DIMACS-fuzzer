@@ -2,17 +2,18 @@
 set -x # Display every executed instruction
 set -e # Fail script as soon as instruction fails
 
-# if [ -d ./fuzzed-tests ]; then
+# if [ -d fuzzed-tests ]; then
 #     echo "Directory exists"
-#     rm -rf ./fuzzed-tests
+#     rm -rf fuzzed-tests
 # fi
 
-# rm -rf inputs/AUTOGEN*
-# mkdir ./fuzzed-tests
-# chmod 777 ./fuzzed-tests/
-# chmod +x solvers/solver1/runsat.sh
-# chmod +x solvers/solver2/runsat.sh
-# chmod +x solvers/solver3/runsat.sh
+rm -rf inputs/AUTOGEN*
+rm -rf fuzzed-tests/AUTOGEN*
+# mkdir fuzzed-tests
+# chmod 777 fuzzed-tests
+chmod +x solvers/solver1/runsat.sh
+chmod +x solvers/solver2/runsat.sh
+chmod +x solvers/solver3/runsat.sh
 
 g++ ./fuzzer/main.cpp -g -std=c++17 -pthread -O3 -o fuzz-sat
 chmod +x fuzz-sat
