@@ -2,10 +2,10 @@
 set -x # Display every executed instruction
 set -e # Fail script as soon as instruction fails
 
-# if [ -d ./fuzzed-tests ]; then
-#     echo "Directory exists"
-#     rm -rf ./fuzzed-tests
-# fi
+if [ -d ./fuzzed-tests ]; then
+    echo "Directory exists"
+    rm -rf ./fuzzed-tests
+fi
 
 rm -rf inputs/AUTOGEN*
 mkdir ./fuzzed-tests
