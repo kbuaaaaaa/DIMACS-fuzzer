@@ -270,8 +270,7 @@ std::string generate_trash_cnf(long counter)
         correct = generate_simple_correct_cnf();
     }
     int num_changes = rand() % correct.size();
-    // int choose_case = rand() % 10 + 1;
-    int choose_case = CURRENT_COUNTER % 10 + 1;
+    int choose_case = counter % 10 + 1;
     bool changing_header = (rand() % 100) < 10;
     switch (choose_case)
     {
@@ -445,8 +444,6 @@ void save_to_file(const char *raw_error_output, long CurrentInput)
 {
     // ASYNC WRITE HERE
     std::string grep_content = "";
-    // std::string name = "fuzzed-tests/test_error_" + std::to_string(CurrentInput) + ".txt";
-    // std::ofstream error_file(name);
 
     for (size_t j = 0; j < REGEX_ERRORS; j++)
     {
@@ -469,8 +466,9 @@ void save_to_file(const char *raw_error_output, long CurrentInput)
                 }
 
                 bool unique = true;
+                int i = 0;
                 std::string removedFile;
-                while (unique)
+                while (unique && i < 101)
                 {
                     removedFile = maxError->filename.at(pick(0, maxError->filename.size() - 1));
                     bool tempUnique = false;
@@ -482,6 +480,7 @@ void save_to_file(const char *raw_error_output, long CurrentInput)
                         }
                     }
                     unique = tempUnique;
+                    i++;
                 };
 
                 std::string command = "rm fuzzed-tests/" + removedFile;
