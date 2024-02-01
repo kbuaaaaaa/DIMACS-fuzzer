@@ -6,6 +6,8 @@ if [ -d ./fuzzed-tests ]; then
     echo "Directory exists"
     rm -rf fuzzed-tests
 fi
+pwd
+ls
 
 rm -rf inputs/AUTOGEN*
 mkdir fuzzed-tests
@@ -15,6 +17,7 @@ chmod +x solvers/solver3/runsat.sh
 
 g++ ./fuzzer/main.cpp -g -std=c++17 -pthread -O3 -o fuzz-sat
 chmod +x fuzz-sat
+ls
 mkdir inputs
 
 # Implement your build script here...
