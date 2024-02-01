@@ -18,6 +18,8 @@ chmod +x solvers/solver3/runsat.sh
 g++ ./fuzzer/main.cpp -g -std=c++17 -pthread -O3 -o fuzz-sat
 # chmod +x fuzz-sat
 touch ./fuzzed-tests/Testing.txt
+echo "Testing" > ./fuzzed-tests/Testing.txt
+cat ./fuzzed-tests/Testing.txt
 # mkdir inputs
 
 # Implement your build script here...
