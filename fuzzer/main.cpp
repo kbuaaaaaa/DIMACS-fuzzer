@@ -21,6 +21,8 @@ int main(int argc, char *argv[])
     int seed = atoi(argv[3]);
     srand(seed);
 
+    ensure_directory_exists(folder);
+
     set_edge_cases();
     run_one_time_edge_cases(SATPath);
 
@@ -526,11 +528,8 @@ void save_to_file(const char *raw_error_output, long CurrentInput)
 
     if (grep_content != "")
     {
-        // error_file << grep_content << "\n";
-        // error_file << raw_error_output << "\n";
-        ensure_directory_exists(folder);
         std::string filename = "AUTOGEN_" + std::to_string(CurrentInput) + ".cnf";
-        std::string command = "cp inputs/" + filename + " " + folder + filename + "; echo '----'; ls; echo '----'; cat test; echo '----'";
+        std::string command = "cp inputs/" + filename + " " + folder + filename;
 
         if (std::system(command.c_str()) == 0)
         {
