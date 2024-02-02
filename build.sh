@@ -3,20 +3,9 @@ set -x # Display every executed instruction
 set -e # Fail script as soon as instruction fails
 
 
-# mkdir fuzzed-tests
-# chmod 777 fuzzed-tests
-# chmod +x solvers/solver1/runsat.sh
-# chmod +x solvers/solver2/runsat.sh
-# chmod +x solvers/solver3/runsat.sh
-
 g++ ./fuzzer/main.cpp -g -std=c++17 -pthread -O3 -o fuzz-sat
-# chmod +x fuzz-sat
-# touch ./fuzzed-tests/Testing.txt
-# echo "Testing" > ./fuzzed-tests/Testing.txt
-# cat ./fuzzed-tests/Testing.txt
-# chmod +x ./fuzzed-tests
 mkdir newDir
-mkdir fuzzed_tests
+mkdir fuzzed-tests
 mkdir inputs
 
 # Implement your build script here...

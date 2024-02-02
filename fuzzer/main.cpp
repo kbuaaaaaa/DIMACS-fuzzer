@@ -534,7 +534,7 @@ void save_to_file(const char *raw_error_output, long CurrentInput)
         if (std::system(command.c_str()) == 0)
         {
             FilesCopied++;
-            std::cout << "File moved successfully. " << command.c_str() << std::endl;
+            // std::cout << "File moved successfully. " << command.c_str() << std::endl;
         }
         // else
         // {
