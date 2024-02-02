@@ -8,7 +8,6 @@ sat
 # Fuzzer outputs
 # fuzzed-tests/
 # inputs/
-#fuzz-sat
 .vscode/settings.json
 solvers/
-```
+fuzz-sat

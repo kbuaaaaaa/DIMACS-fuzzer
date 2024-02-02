@@ -3,3 +3,4 @@
 rm -rf fuzzed-tests
 rm -rf inputs
 rm -rf newDir
+rm fuzz-sat
