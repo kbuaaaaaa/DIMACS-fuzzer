@@ -16,7 +16,7 @@ g++ ./fuzzer/main.cpp -g -std=c++17 -pthread -O3 -o fuzz-sat
 # cat ./fuzzed-tests/Testing.txt
 # chmod +x ./fuzzed-tests
 mkdir newDir
-mkdir fuzzed-tests
+mkdir fuzzed_tests
 mkdir inputs
 
 # Implement your build script here...
