@@ -1,4 +1,7 @@
 #include "main.h"
+#include <filesystem>
+
+std::string folder = "./fuzzed-tests/";
 
 long INPUT_COUNTER = 0;
 long CURRENT_COUNTER = 0;
@@ -31,6 +34,12 @@ int main(int argc, char *argv[])
     FuzzingThread2.join();
     OutputProcessingThread.join();
     InputGenerationThread.join();
+}
+
+void ensure_directory_exists(std::string path) {
+    if (!std::filesystem::exists(path)) {
+        std::filesystem::create_directories(path);
+    }
 }
 
 void process_output()
@@ -519,7 +528,9 @@ void save_to_file(const char *raw_error_output, long CurrentInput)
     {
         // error_file << grep_content << "\n";
         // error_file << raw_error_output << "\n";
-        std::string command = "cp inputs/AUTOGEN_" + std::to_string(CurrentInput) + ".cnf ./fuzzed_tests/AUTOGEN_" + std::to_string(CurrentInput) + ".cnf; echo '----'; ls; echo '----'; pwd; echo '----'; cat test; echo '----'";
+        ensure_directory_exists(folder);
+        std::string filename = "AUTOGEN_" + std::to_string(CurrentInput) + ".cnf";
+        std::string command = "cp inputs/" + filename + " " + folder + filename + "; echo '----'; ls; echo '----'; cat test; echo '----'";
 
         if (std::system(command.c_str()) == 0)
         {

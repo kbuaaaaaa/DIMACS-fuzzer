@@ -25,7 +25,7 @@ std::vector RANDOM_BYTES = {"\x7F\x45\x4C\x46", "\x89\x50\x4E\x47\x0D\x0A\x1A\x0
 
 #pragma once
 void execute(subprocess::Popen &SUTProcess, long CurrentInput);
-//std::string random_gen_input(int seed);
+void ensure_directory_exists(std::string);
 void set_edge_cases();
 void run_one_time_edge_cases(std::string SATPath);
 void generate_cnf_files();
